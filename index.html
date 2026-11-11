@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shop Acc Liên Quân</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f3f4fa;--card:#fff;--tx:#161827;--mu:#6a6e86;--pr:#4f46e5;--pr2:#7c3aed;--ac:#e11d48;--bd:#e2e4f0;--ok:#15803d;--wn:#b45309}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0e0f19;--card:#181a29;--tx:#eceefb;--mu:#9a9eb8;--bd:#2a2d42;--ok:#4ade80;--wn:#fbbf24}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0e0f19;--card:#181a29;--tx:#eceefb;--mu:#9a9eb8;--bd:#2a2d42;--ok:#4ade80;--wn:#fbbf24}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{background:linear-gradient(90deg,var(--pr),var(--pr2));color:#fff;position:sticky;top:env(safe-area-inset-top,0px);z-index:5;box-shadow:0 2px 10px #0003}
+.hd{max-width:1100px;margin:0 auto;padding:10px 16px;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between}
+.logo{font-weight:800;font-size:19px;cursor:pointer}
+.nav{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.nav button{background:transparent;color:#fff;padding:7px 11px;font-size:14px}
+.nav button.on,.nav button:hover{background:#ffffff2e}
+.bal{background:#fff;color:var(--pr);font-weight:700;border-radius:20px;padding:5px 12px;font-size:14px}
+main{max-width:1100px;margin:0 auto;padding:16px}
+button{font:inherit;cursor:pointer;border:0;border-radius:8px;padding:9px 15px;background:var(--pr);color:#fff;transition:.15s}
+button:hover{filter:brightness(1.1)}
+button.g{background:transparent;color:var(--tx);border:1px solid var(--bd)}
+button.d{background:var(--ac)}button.s{background:var(--ok);color:#fff}
+input,textarea,select{font:inherit;width:100%;padding:10px;margin:4px 0 12px;border-radius:8px;border:1px solid var(--bd);background:var(--bg);color:var(--tx)}
+label{font-size:13px;color:var(--mu)}
+.hero{background:linear-gradient(120deg,#1e1b4b,#4f46e5 60%,#e11d48);color:#fff;border-radius:16px;padding:28px 22px;margin-bottom:16px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center}
+.hero h1{margin:0 0 6px;font-size:26px}.hero p{margin:0;opacity:.9}
+.st{display:flex;gap:12px}.st div{background:#ffffff26;border-radius:12px;padding:10px 16px;text-align:center}.st b{display:block;font-size:22px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.bar input{flex:1;min-width:160px;margin:0}
+.chip{border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:20px;padding:6px 14px;font-size:14px}
+.chip.on{background:var(--pr);color:#fff;border-color:var(--pr)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;overflow:hidden;cursor:pointer;position:relative;transition:.2s}
+.card:hover{transform:translateY(-3px);box-shadow:0 8px 20px #0002}
+.card img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;background:var(--bd)}
+.card .b{padding:10px 12px}.card .t{font-weight:600;font-size:14px;min-height:36px}
+.price{color:var(--ac);font-weight:800;font-size:17px}
+.badge{position:absolute;top:8px;left:8px;background:#000a;color:#fff;font-size:11px;border-radius:6px;padding:3px 8px}
+.badge.so{left:auto;right:8px;background:var(--ac)}
+.box{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:18px;max-width:440px;margin:16px auto}
+.box.w{max-width:none;margin:12px 0}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.tag{font-size:12px;background:var(--bd);border-radius:6px;padding:2px 8px;color:var(--mu)}
+.msg{color:var(--ac);font-size:14px;min-height:18px;margin-bottom:6px}.msg.ok{color:var(--ok)}
+.det{white-space:pre-wrap;line-height:1.55}
+.dimg{width:100%;max-height:440px;object-fit:contain;background:var(--bd);border-radius:12px}
+.spec{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}.spec div{background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:8px 14px}.spec b{display:block}
+.cr{display:flex;gap:8px;align-items:center}.cr .code{flex:1;margin:6px 0 12px}.cp{padding:5px 10px;font-size:12px;margin-left:6px}.cr .cp{margin:0 0 6px}
+.card.off{cursor:default}.card.off:hover{transform:none;box-shadow:none}.card.off img{filter:grayscale(1);opacity:.5}
+.stt{font-size:13px;font-weight:700;margin-top:2px}.stt.cn{color:var(--ok)}.stt.sd{color:var(--mu)}
+@media(max-width:600px){.grid{grid-template-columns:repeat(2,1fr);gap:10px}.card .t{font-size:13px;min-height:34px}.price{font-size:15px}.card .b{padding:8px 9px}main{padding:12px}.hero{padding:20px 16px}.hero h1{font-size:21px}}
+.sec{background:var(--bg);border:1px dashed var(--ok);border-radius:10px;padding:12px;margin-top:12px;white-space:pre-wrap}
+.code{background:var(--bg);border:1px dashed var(--pr);border-radius:10px;padding:10px;font-weight:800;font-size:18px;letter-spacing:1px;text-align:center;margin:6px 0 12px;word-break:break-all}
+.qr{display:block;max-width:240px;width:100%;margin:8px auto;border-radius:10px;background:#fff}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:9px 8px;border-bottom:1px solid var(--bd);text-align:left;white-space:nowrap}th{color:var(--mu);font-weight:600}
+.pos{color:var(--ok);font-weight:700}.neg{color:var(--ac);font-weight:700}.pend{color:var(--wn)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+footer{text-align:center;color:var(--mu);font-size:13px;padding:24px 16px}
+</style>
+</head>
+<body>
+<header><div class="hd"><div class="logo" data-go="home">⚔️ Shop Acc Liên Quân</div><div class="nav" id="nav"></div></div></header>
+<main id="app"><p>Đang tải dữ liệu…</p></main>
+<footer>© Shop Acc Liên Quân · Mua bán acc game uy tín, giao acc nhanh</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+(function(){
+var SB_URL="https://dnjtfyviroswhyiipgwb.supabase.co",SB_KEY="sb_publishable_hwC6nRO5z48_4yTMH6K69g_NpjTaos6";
+var $=function(s){return document.querySelector(s)};
+if(!window.supabase){$("#app").innerHTML='<div class="box"><p>Không tải được thư viện Supabase. Hãy kiểm tra mạng rồi tải lại trang.</p></div>';return}
+var sb=window.supabase.createClient(SB_URL,SB_KEY);
+var me=null,accounts=[],secrets={},buys=[],txns=[],cards=[],users=[],bank={},view={n:"home",t:"acc"},msg="",ok=false,loaded=false,flt={g:"all",q:""},recov=false;
+var GAME="Liên Quân Mobile";
+var fmt=function(n){return (Number(n)||0).toLocaleString("vi-VN")+"đ"};
+var dt=function(t){return t?new Date(t).toLocaleString("vi-VN"):""};
+var esc=function(s){var d=document.createElement("div");d.textContent=s==null?"":String(s);return d.innerHTML};
+var num=function(s){return Number(($(s).value||"").replace(/\D/g,""))};
+var cpBtn=function(t){return '<button type="button" class="g cp" data-cp="'+esc(t)+'">Sao chép</button>'};
+var isA=function(){return me&&me.role==="admin"};
+var mk=function(){return '<div class="msg'+(ok?' ok':'')+'">'+esc(msg)+'</div>'};
+var chk=function(r){if(r.error)throw r.error;return r.data};
+function viErr(m){m=m||"";if(/Invalid login/i.test(m))return "Sai email hoặc mật khẩu";if(/not confirmed/i.test(m))return "Email chưa được xác nhận, hãy kiểm tra hộp thư";if(/rate limit|too many/i.test(m))return "Thao tác quá nhanh, hãy thử lại sau ít phút";if(/at least 6|weak/i.test(m))return "Mật khẩu quá yếu (tối thiểu 6 ký tự)";return m}
+function note(m,g){msg=m;ok=!!g;render()}
+function err(e){note("Lỗi: "+viErr(e&&e.message||String(e)))}
+function go(n,x,t){view={n:n,x:x,t:t||view.t};msg="";ok=false;render();window.scrollTo(0,0)}
+function copy(t,b){
+  var done=function(){var o=b.textContent;b.textContent="Đã chép ✓";setTimeout(function(){b.textContent=o},1200)};
+  function fb(){var a=document.createElement("textarea");a.value=t;a.style.cssText="position:fixed;opacity:0";document.body.appendChild(a);a.select();try{document.execCommand("copy");done()}catch(e){}a.remove()}
+  if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(t).then(done,fb);else fb();
+}
+
+async function refresh(soft){
+  try{
+    var s=(await sb.auth.getSession()).data.session,uid=s?s.user.id:null;
+    var ra=await sb.from("accounts").select("*").order("created_at",{ascending:false});
+    var rb=await sb.from("settings").select("value").eq("key","bank").maybeSingle();
+    accounts=ra.data||[];bank=(rb.data&&rb.data.value)||{};
+    me=null;secrets={};buys=[];txns=[];cards=[];users=[];
+    if(uid){
+      var q=await Promise.all([
+        sb.from("profiles").select("*").eq("id",uid).maybeSingle(),
+        sb.from("transactions").select("*").order("created_at",{ascending:false}).limit(300),
+        sb.from("purchases").select("*").order("created_at",{ascending:false}),
+        sb.from("card_topups").select("*").order("created_at",{ascending:false}).limit(300),
+        sb.from("account_secrets").select("*")]);
+      me=q[0].data;txns=q[1].data||[];buys=q[2].data||[];cards=q[3].data||[];
+      (q[4].data||[]).forEach(function(x){secrets[x.account_id]=x.secret});
+      if(me&&me.role==="admin"){users=(await sb.from("profiles").select("*").order("created_at",{ascending:false})).data||[]}
+    }
+  }catch(e){}
+  loaded=true;
+  var ae=document.activeElement;
+  if(soft&&ae&&/INPUT|TEXTAREA|SELECT/.test(ae.tagName)&&ae.id!=="q")return;
+  render();
+}
+
+function renderNav(){
+  var v=view.n,h='<button data-go="home" class="'+(v==="home"||v==="acc"?"on":"")+'">Trang chủ</button>';
+  if(me){
+    if(!isA())h+='<button data-go="topup" class="'+(v==="topup"?"on":"")+'">Nạp tiền</button>';
+    h+='<button data-go="history" class="'+(v==="history"?"on":"")+'">Lịch sử</button><button data-go="profile" class="'+(v==="profile"?"on":"")+'">Tài khoản</button>';
+    if(isA())h+='<button data-go="admin" class="'+(v==="admin"?"on":"")+'">Quản trị</button>';
+    h+='<span class="bal">'+(isA()?"Admin":fmt(me.balance))+'</span><button data-go="logout">Thoát</button>';
+  }else h+='<button data-go="login">Đăng nhập</button><button data-go="register" style="background:#fff;color:#4f46e5">Đăng ký</button>';
+  $("#nav").innerHTML=h;
+}
+
+function games(){var s={};s[GAME]=1;accounts.forEach(function(a){if(a.game)s[a.game]=1});return Object.keys(s)}
+var mineBuy=function(a){return buys.some(function(b){return b.account_id===a.id})};
+var canView=function(a){return a.status!=="sold"||isA()||mineBuy(a)};
+function gridHtml(){
+  var l=accounts.filter(function(a){return (flt.g==="all"||a.game===flt.g)&&(!flt.q||(a.title+" "+a.game+" "+(a.rank||"")).toLowerCase().indexOf(flt.q.toLowerCase())>-1)});
+  l.sort(function(a,b){return (a.status==="sold"?1:0)-(b.status==="sold"?1:0)});
+  if(!loaded)return "<p>Đang tải…</p>";
+  if(!l.length)return "<p>Không có acc phù hợp.</p>";
+  return '<div class="grid">'+l.map(function(a){var can=canView(a),sold=a.status==="sold";return '<div class="card'+(can?'':' off')+'"'+(can?' data-acc="'+esc(a.id)+'"':'')+'><img src="'+esc(a.image_url)+'" alt=""><span class="badge">'+esc(a.game)+'</span><div class="b"><div class="t">'+esc(a.title)+'</div><div class="price">'+fmt(a.price)+'</div><div class="stt '+(sold?'sd':'cn')+'">'+(sold?'Đã bán':'Còn')+'</div></div></div>'}).join("")+'</div>';
+}
+function home(){
+  var on=accounts.filter(function(a){return a.status!=="sold"}).length;
+  var h='<div class="hero"><div><h1>Acc Liên Quân giá tốt</h1><p>Rank cao, nhiều tướng – nhiều skin. Thanh toán nhanh, nhận acc ngay.</p></div><div class="st"><div><b>'+on+'</b>Acc đang bán</div><div><b>'+(accounts.length-on)+'</b>Đã bán</div></div></div>';
+  h+='<div class="bar"><input id="q" placeholder="Tìm acc theo tên, rank…" value="'+esc(flt.q)+'"></div><div class="bar"><button class="chip '+(flt.g==="all"?"on":"")+'" data-g="all">Tất cả</button>';
+  games().forEach(function(g){h+='<button class="chip '+(flt.g===g?"on":"")+'" data-g="'+esc(g)+'">'+esc(g)+'</button>'});
+  return h+'</div><div id="grid">'+gridHtml()+'</div>';
+}
+
+function detail(){
+  var a=accounts.find(function(x){return x.id===view.x}),back='<button class="g" data-go="home">← Quay lại</button>';
+  if(!a)return back+"<p>Không tìm thấy acc.</p>";
+  if(!canView(a))return back+'<div class="box"><p>Acc này đã bán.</p></div>';
+  var sold=a.status==="sold";
+  var sp=[["Game",a.game],["Rank",a.rank],["Số tướng",a.heroes],["Số skin",a.skins]].filter(function(x){return x[1]}).map(function(x){return '<div><span class="tag">'+x[0]+'</span><b>'+esc(x[1])+'</b></div>'}).join("");
+  var h=back+'<div class="box w"><div class="two"><img class="dimg" src="'+esc(a.image_url)+'" alt=""><div><h2 style="margin-top:0">'+esc(a.title)+'</h2><div class="price" style="font-size:26px">'+fmt(a.price)+'</div><div class="spec">'+sp+'</div>';
+  if(sold){h+='<p class="stt sd">Đã bán</p>';
+    if(secrets[a.id]!==undefined)h+='<div class="sec"><b>Thông tin đăng nhập:</b>\n'+esc(secrets[a.id])+'</div><div style="margin-top:6px">'+cpBtn(secrets[a.id])+'</div>';}
+  else if(!me)h+='<button data-go="login">Đăng nhập để mua</button>';
+  else if(isA())h+='<button class="d" data-del="'+esc(a.id)+'">Xóa acc</button>';
+  else h+='<button data-buy="'+esc(a.id)+'">Mua ngay</button>';
+  return h+mk()+'</div></div><h3>Thông tin chi tiết</h3><div class="det">'+esc(a.details||"Chưa có mô tả.")+'</div></div>';
+}
+
+function loginPage(){return '<div class="box"><h2>Đăng nhập</h2><label>Email</label><input id="em" type="email" autocomplete="email"><label>Mật khẩu</label><input id="p" type="password" autocomplete="current-password">'+mk()+'<button id="go">Đăng nhập</button> <button class="g" data-go="forgot">Quên mật khẩu?</button></div>'}
+function regPage(){return '<div class="box"><h2>Đăng ký tài khoản</h2><label>Email (dùng để đăng nhập và nhận mã xác nhận)</label><input id="em" type="email" autocomplete="email"><div class="row"><div><label>Tên hiển thị</label><input id="u" autocomplete="username"></div><div><label>Họ và tên</label><input id="fn"></div></div><label>Số điện thoại</label><input id="ph" inputmode="tel"><label>Mật khẩu</label><input id="p" type="password" autocomplete="new-password"><label>Nhập lại mật khẩu</label><input id="p2" type="password">'+mk()+'<button id="go">Tạo tài khoản</button><p class="tag">Sau khi đăng ký, hãy bấm link xác nhận gửi về email.</p></div>'}
+function forgotPage(){return '<div class="box"><h2>Quên mật khẩu</h2><label>Email đã đăng ký</label><input id="em" type="email">'+mk()+'<button id="fpgo">Gửi link đặt lại mật khẩu</button> <button class="g" data-go="login">Quay lại</button></div>'}
+function recoverPage(){return '<div class="box"><h2>Đặt mật khẩu mới</h2><label>Mật khẩu mới</label><input id="np" type="password"><label>Nhập lại mật khẩu mới</label><input id="np2" type="password">'+mk()+'<button id="rcgo">Đổi mật khẩu</button></div>'}
+
+function topup(){
+  var mine=cards.filter(function(c){return c.user_id===me.id}).slice(0,6);
+  var h='<h2>Nạp tiền</h2><div class="two"><div class="box w"><h3 style="margin-top:0">🏦 Chuyển khoản QR</h3>'+(bank.qr_url?'<img class="qr" src="'+esc(bank.qr_url)+'" alt="QR">':'<p class="tag">Admin chưa cài mã QR.</p>')+'<div class="det">'+esc(bank.info||"")+'</div><label>Nội dung chuyển khoản (bắt buộc ghi đúng)</label><div class="cr"><div class="code">'+esc(me.topup_code)+'</div>'+cpBtn(me.topup_code)+'</div><p class="tag">Sau khi nhận được tiền, admin sẽ cộng số dư cho tài khoản của bạn.</p></div>';
+  h+='<div class="box w"><h3 style="margin-top:0">📱 Thẻ cào điện thoại</h3><div class="row"><div><label>Nhà mạng</label><select id="tl"><option>Viettel</option><option>Mobifone</option><option>Vinaphone</option><option>Vietnamobile</option></select></div><div><label>Mệnh giá</label><select id="cv">'+[10000,20000,50000,100000,200000,500000].map(function(v){return '<option value="'+v+'">'+fmt(v)+'</option>'}).join("")+'</select></div></div><label>Số seri</label><input id="sr"><label>Mã thẻ</label><input id="pn">'+mk()+'<button id="cardgo">Gửi thẻ</button><p class="tag">Thẻ được admin duyệt thủ công, tiền cộng sau khi duyệt.</p></div></div>';
+  if(mine.length)h+='<h3>Thẻ đã gửi</h3><div class="box w tw"><table><tr><th>Thời gian</th><th>Thẻ</th><th>Trạng thái</th></tr>'+mine.map(function(c){return '<tr><td>'+dt(c.created_at)+'</td><td>'+esc(c.telco)+' '+fmt(c.amount)+'</td><td class="'+(c.status==="approved"?"pos":c.status==="rejected"?"neg":"pend")+'">'+(c.status==="approved"?"Đã cộng":c.status==="rejected"?"Bị từ chối":"Chờ duyệt")+'</td></tr>'}).join("")+'</table></div>';
+  return h;
+}
+
+var TY={bank:"Nạp chuyển khoản",card:"Nạp thẻ cào",buy:"Mua acc"};
+function boughtHtml(){
+  if(!buys.length)return "";
+  return '<h3>Acc đã mua</h3><div class="two">'+buys.map(function(b){var s=secrets[b.account_id],ex=accounts.some(function(a){return a.id===b.account_id});return '<div class="box w" style="margin:0"><b>'+esc(b.account_title)+'</b><p class="tag" style="margin:6px 0">Mua lúc '+dt(b.created_at)+' · '+fmt(b.price)+'</p><div class="sec"><b>Tài khoản / mật khẩu:</b>\n'+esc(s===undefined?"(chưa có thông tin)":s)+'</div><div style="margin-top:8px">'+(s?cpBtn(s):'')+(ex?' <button class="g cp" data-acc="'+esc(b.account_id)+'">Xem chi tiết</button>':'')+'</div></div>'}).join("")+'</div><h3>Giao dịch</h3>';
+}
+function history(){
+  var h='<h2>Lịch sử mua bán &amp; nạp tiền</h2>'+(isA()?'':boughtHtml());
+  if(!txns.length)return h+"<p>Chưa có giao dịch.</p>";
+  return h+'<div class="box w tw"><table><tr><th>Thời gian</th>'+(isA()?'<th>Tài khoản</th>':'')+'<th>Loại</th><th>Nội dung</th><th>Số tiền</th></tr>'+txns.map(function(t){return '<tr><td>'+dt(t.created_at)+'</td>'+(isA()?'<td>'+esc(t.username)+'</td>':'')+'<td>'+(TY[t.type]||t.type)+'</td><td>'+esc(t.note)+'</td><td class="'+(t.amount>=0?"pos":"neg")+'">'+(t.amount>=0?"+":"")+fmt(t.amount)+'</td></tr>'}).join("")+'</table></div>';
+}
+
+function profile(){
+  return '<div class="box"><h2>Thông tin tài khoản</h2><label>Email</label><input value="'+esc(me.email)+'" disabled><div class="row"><div><label>Tên hiển thị</label><input value="'+esc(me.username)+'" disabled></div><div><label>Loại tài khoản</label><input value="'+(isA()?"Admin":"Người dùng")+'" disabled></div></div><label>Số dư</label><input value="'+fmt(me.balance)+'" disabled><label>Họ và tên</label><input id="fn" value="'+esc(me.full_name)+'"><label>Số điện thoại</label><input id="ph" value="'+esc(me.phone)+'"><label>Nội dung nạp tiền của bạn</label><div class="cr"><div class="code">'+esc(me.topup_code)+'</div>'+cpBtn(me.topup_code)+'</div><p class="tag">Tham gia từ '+dt(me.created_at)+'</p>'+mk()+'<button id="profgo">Lưu thông tin</button></div>';
+}
+
+function admin(){
+  var T=[["acc","Đăng acc"],["nap","Cộng tiền"],["card","Duyệt thẻ"],["users","Người dùng"],["qr","Cài QR"]],t=view.t;
+  var p=cards.filter(function(c){return c.status==="pending"});
+  var h='<h2>Quản trị</h2><div class="tabs">'+T.map(function(x){return '<button class="'+(t===x[0]?"":"g")+'" data-tab="'+x[0]+'">'+x[1]+(x[0]==="card"&&p.length?" ("+p.length+")":"")+'</button>'}).join("")+'</div>';
+  if(t==="acc")h+='<div class="box w"><div class="row"><div><label>Tên acc</label><input id="t" placeholder="VD: Acc rank Cao Thủ full tướng"></div><div><label>Game</label><input id="g" value="'+GAME+'"></div><div><label>Giá (VNĐ)</label><input id="pr" class="money" inputmode="numeric" placeholder="0"></div><div><label>Rank</label><input id="rk"></div><div><label>Số tướng</label><input id="hr"></div><div><label>Số skin</label><input id="sk"></div></div><label>Ảnh acc</label><input id="f" type="file" accept="image/*"><label>Mô tả chi tiết</label><textarea id="d" rows="5"></textarea><label>Tài khoản / mật khẩu giao cho người mua</label><textarea id="s" rows="2"></textarea>'+mk()+'<button id="addgo">Đăng acc</button></div>';
+  if(t==="nap")h+='<div class="box"><h3 style="margin-top:0">Cộng tiền khi nhận chuyển khoản</h3><label>Nội dung CK của khách (hoặc tên hiển thị)</label><input id="k" placeholder="VD: NAPK7M2QX"><label>Số tiền đã nhận (VNĐ)</label><input id="am" class="money" inputmode="numeric" placeholder="0">'+mk()+'<button class="s" id="credgo">Xác nhận cộng tiền</button></div>';
+  if(t==="card")h+=p.length?'<div class="box w tw"><table><tr><th>Thời gian</th><th>Tài khoản</th><th>Thẻ</th><th>Seri</th><th>Mã thẻ</th><th></th></tr>'+p.map(function(c){return '<tr><td>'+dt(c.created_at)+'</td><td>'+esc(c.username)+'</td><td>'+esc(c.telco)+' '+fmt(c.amount)+'</td><td>'+esc(c.serial)+' '+cpBtn(c.serial)+'</td><td>'+esc(c.pin)+' '+cpBtn(c.pin)+'</td><td><button class="s" data-ap="'+c.id+'">Duyệt</button> <button class="d" data-rj="'+c.id+'">Từ chối</button></td></tr>'}).join("")+'</table></div>':'<p>Không có thẻ chờ duyệt.</p>'+mk();
+  if(t==="users")h+='<div class="box w tw"><table><tr><th>Tên</th><th>Họ tên</th><th>SĐT</th><th>Email</th><th>Nội dung nạp</th><th>Số dư</th><th>Quyền</th><th></th></tr>'+users.map(function(u){return '<tr><td>'+esc(u.username)+'</td><td>'+esc(u.full_name)+'</td><td>'+esc(u.phone)+'</td><td>'+esc(u.email)+'</td><td>'+esc(u.topup_code)+' '+cpBtn(u.topup_code)+'</td><td>'+fmt(u.balance)+'</td><td>'+u.role+'</td><td>'+(u.role==="admin"?"":'<button class="d" data-du="'+u.id+'">Xóa</button>')+'</td></tr>'}).join("")+'</table></div>'+mk();
+  if(t==="qr")h+='<div class="box"><h3 style="margin-top:0">Mã QR nhận tiền</h3>'+(bank.qr_url?'<img class="qr" src="'+esc(bank.qr_url)+'" alt="">':'')+'<label>Tải ảnh QR</label><input id="qf" type="file" accept="image/*"><label>Thông tin ngân hàng</label><textarea id="bk" rows="4" placeholder="Ngân hàng: ...\nSố TK: ...\nChủ TK: ...">'+esc(bank.info)+'</textarea>'+mk()+'<button id="qrgo">Lưu</button></div>';
+  return h;
+}
+
+function render(){
+  renderNav();
+  var v=view.n,h="",need=["topup","history","profile","admin"].indexOf(v)>-1;
+  if(!loaded){$("#app").innerHTML="<p>Đang tải dữ liệu…</p>";return}
+  if(need&&!me)v="login";
+  if(v==="home")h=home();else if(v==="acc")h=detail();
+  else if(v==="login")h=loginPage();else if(v==="register")h=regPage();else if(v==="forgot")h=forgotPage();
+  else if(v==="recover")h=recov?recoverPage():loginPage();
+  else if(v==="topup")h=isA()?admin():topup();else if(v==="history")h=history();
+  else if(v==="profile")h=profile();else if(v==="admin")h=isA()?admin():home();
+  var ae=document.activeElement,id=ae&&ae.id,val=ae&&ae.value;
+  $("#app").innerHTML=h;
+  if(id==="q"){var q=$("#q");q.focus();q.setSelectionRange(val.length,val.length)}
+}
+
+function resize(file,max,type){
+  return new Promise(function(res,rej){
+    var im=new Image(),u=URL.createObjectURL(file);
+    im.onload=function(){var r=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*r);c.height=Math.round(im.height*r);c.getContext("2d").drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(function(b){b?res(b):rej(new Error("Ảnh không hợp lệ"))},type==="png"?"image/png":"image/jpeg",.82)};
+    im.onerror=function(){rej(new Error("Ảnh không hợp lệ"))};im.src=u;
+  });
+}
+async function upload(path,blob){
+  var r=await sb.storage.from("public-assets").upload(path,blob,{contentType:blob.type,upsert:true});
+  if(r.error)throw r.error;
+  return sb.storage.from("public-assets").getPublicUrl(path).data.publicUrl;
+}
+var rid=function(){return Date.now()+"-"+Math.random().toString(36).slice(2,8)};
+
+async function doLogin(){
+  var e=$("#em").value.trim(),p=$("#p").value;
+  if(!e||!p)return note("Nhập email và mật khẩu");
+  try{var r=await sb.auth.signInWithPassword({email:e,password:p});if(r.error)throw r.error;await refresh();go("home")}catch(x){err(x)}
+}
+async function doReg(){
+  var e=$("#em").value.trim(),u=$("#u").value.trim().toLowerCase(),fn=$("#fn").value.trim(),ph=$("#ph").value.trim(),p=$("#p").value;
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e))return note("Email không hợp lệ");
+  if(!/^[a-z0-9_]{3,20}$/.test(u))return note("Tên hiển thị 3-20 ký tự: chữ thường, số, _");
+  if(!fn)return note("Nhập họ và tên");
+  if(ph&&!/^(0|\+84)\d{9,10}$/.test(ph.replace(/[\s.\-]/g,"")))return note("Số điện thoại không hợp lệ");
+  if(p.length<6)return note("Mật khẩu tối thiểu 6 ký tự");
+  if($("#p2").value!==p)return note("Mật khẩu nhập lại không khớp");
+  try{
+    var r=await sb.auth.signUp({email:e,password:p,options:{data:{username:u,full_name:fn,phone:ph},emailRedirectTo:location.origin+location.pathname}});
+    if(r.error)throw r.error;
+    go("login");note("✔ Đã gửi email xác nhận tới "+e+". Hãy bấm link trong email rồi đăng nhập.",1);
+  }catch(x){err(x)}
+}
+async function doForgot(){
+  var e=$("#em").value.trim();if(!e)return note("Nhập email");
+  try{var r=await sb.auth.resetPasswordForEmail(e,{redirectTo:location.origin+location.pathname});if(r.error)throw r.error;note("✔ Nếu email đã đăng ký, link đặt lại mật khẩu đã được gửi. Hãy kiểm tra hộp thư.",1)}catch(x){err(x)}
+}
+async function doRecover(){
+  var a=$("#np").value;
+  if(a.length<6)return note("Mật khẩu mới tối thiểu 6 ký tự");
+  if(a!==$("#np2").value)return note("Mật khẩu nhập lại không khớp");
+  try{var r=await sb.auth.updateUser({password:a});if(r.error)throw r.error;recov=false;await refresh();go("home")}catch(x){err(x)}
+}
+async function addAcc(){
+  var t=$("#t").value.trim(),f=$("#f").files[0];
+  if(!t||!$("#pr").value||!f)return note("Nhập tên, giá và chọn ảnh");
+  try{
+    note("Đang đăng acc…",1);
+    var url=await upload("acc/"+rid()+".jpg",await resize(f,900,"jpg"));
+    var r=chk(await sb.from("accounts").insert({title:t,game:$("#g").value.trim()||GAME,price:num("#pr"),rank:$("#rk").value.trim(),heroes:$("#hr").value.trim(),skins:$("#sk").value.trim(),details:$("#d").value,image_url:url}).select("id").single());
+    chk(await sb.from("account_secrets").insert({account_id:r.id,secret:$("#s").value}));
+    await refresh();go("home");
+  }catch(e){err(e)}
+}
+async function buy(id){
+  try{chk(await sb.rpc("buy_account",{p_account_id:id}));await refresh();note("✔ Mua thành công! Thông tin đăng nhập hiện ở bên dưới ảnh và trong mục Lịch sử.",1)}catch(e){await refresh();err(e)}
+}
+async function sendCard(){
+  var sr=$("#sr").value.trim(),pn=$("#pn").value.trim();
+  if(sr.length<6||pn.length<6)return note("Nhập đúng seri và mã thẻ");
+  try{chk(await sb.from("card_topups").insert({user_id:me.id,username:me.username,telco:$("#tl").value,amount:Number($("#cv").value),serial:sr,pin:pn}));await refresh();note("✔ Đã gửi thẻ, vui lòng chờ admin duyệt",1)}catch(e){err(e)}
+}
+async function adminCredit(){
+  var k=$("#k").value.trim(),n=num("#am");
+  if(!k)return note("Nhập nội dung chuyển khoản");
+  if(!(n>0))return note("Nhập số tiền hợp lệ");
+  if(!confirm("Cộng "+fmt(n)+" cho tài khoản có nội dung '"+k+"'?"))return;
+  try{var r=chk(await sb.rpc("admin_credit",{p_key:k,p_amount:n}));await refresh();note("✔ Đã cộng "+fmt(n)+" cho "+r.username,1)}catch(e){err(e)}
+}
+async function review(id,okk){
+  try{chk(await sb.rpc("admin_review_card",{p_id:id,p_approve:okk}));await refresh()}catch(e){err(e)}
+}
+async function delUser(id){
+  var u=users.find(function(x){return x.id===id});
+  if(!confirm("Xóa tài khoản "+(u?u.username:"")+"? Lịch sử giao dịch vẫn được giữ."))return;
+  try{chk(await sb.rpc("admin_delete_user",{p_user:id}));await refresh()}catch(e){err(e)}
+}
+async function delAcc(id){
+  if(!confirm("Xóa acc này?"))return;
+  try{chk(await sb.from("accounts").delete().eq("id",id));await refresh();go("home")}catch(e){err(e)}
+}
+async function saveProf(){
+  try{chk(await sb.from("profiles").update({full_name:$("#fn").value.trim(),phone:$("#ph").value.trim()}).eq("id",me.id));await refresh();note("✔ Đã lưu",1)}catch(e){err(e)}
+}
+async function saveQr(){
+  try{
+    var d={info:$("#bk").value,qr_url:bank.qr_url||""},f=$("#qf").files[0];
+    if(f)d.qr_url=await upload("qr/"+rid()+".png",await resize(f,600,"png"));
+    chk(await sb.from("settings").upsert({key:"bank",value:d,updated_at:new Date().toISOString()}));
+    await refresh();note("✔ Đã lưu",1);
+  }catch(e){err(e)}
+}
+
+document.addEventListener("click",function(e){
+  var t=e.target.closest("[data-go],[data-acc],[data-buy],[data-del],[data-g],[data-tab],[data-ap],[data-rj],[data-cp],[data-du],#go,#fpgo,#rcgo,#cardgo,#addgo,#credgo,#profgo,#qrgo");if(!t)return;
+  var d=t.dataset,i=t.id;
+  if(d.cp!==undefined)return copy(d.cp,t);
+  if(i==="go")return view.n==="register"?doReg():doLogin();
+  if(i==="fpgo")return doForgot();if(i==="rcgo")return doRecover();
+  if(i==="cardgo")return sendCard();if(i==="addgo")return addAcc();if(i==="credgo")return adminCredit();
+  if(i==="profgo")return saveProf();if(i==="qrgo")return saveQr();
+  if(d.g){flt.g=d.g;return render()}
+  if(d.tab)return go(view.n,null,d.tab);
+  if(d.acc)return go("acc",d.acc);if(d.buy)return buy(d.buy);
+  if(d.ap)return review(d.ap,true);if(d.rj)return review(d.rj,false);
+  if(d.du)return delUser(d.du);if(d.del)return delAcc(d.del);
+  if(d.go==="logout"){sb.auth.signOut().then(function(){refresh();go("home")});return}
+  go(d.go);
+});
+document.addEventListener("input",function(e){
+  var t=e.target;
+  if(t.id==="q"){flt.q=t.value;$("#grid").innerHTML=gridHtml()}
+  if(t.classList.contains("money")){var d=t.value.replace(/\D/g,"");t.value=d?Number(d).toLocaleString("vi-VN"):""}
+});
+document.addEventListener("keydown",function(e){if(e.key==="Enter"&&e.target.id&&["em","p","p2"].indexOf(e.target.id)>-1&&$("#go"))$("#go").click()});
+
+var tm;var live=function(){clearTimeout(tm);tm=setTimeout(function(){refresh(true)},500)};
+sb.auth.onAuthStateChange(function(ev){
+  if(ev==="PASSWORD_RECOVERY"){recov=true;view={n:"recover"}}
+  setTimeout(function(){refresh(false)},0);
+});
+["accounts","card_topups","transactions"].forEach(function(t){});
+try{sb.channel("live").on("postgres_changes",{event:"*",schema:"public",table:"accounts"},live).on("postgres_changes",{event:"*",schema:"public",table:"card_topups"},live).on("postgres_changes",{event:"*",schema:"public",table:"transactions"},live).subscribe()}catch(e){}
+render();
+})();
+</script>
+</body>
+</html>
