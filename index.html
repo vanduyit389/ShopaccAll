@@ -35,7 +35,7 @@ label{font-size:13px;color:var(--mu)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
 .card{background:var(--card);border:1px solid var(--bd);border-radius:14px;overflow:hidden;cursor:pointer;position:relative;transition:.2s}
 .card:hover{transform:translateY(-3px);box-shadow:0 8px 20px #0002}
-.card img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;background:var(--bd)}
+.card img{width:100%;aspect-ratio:4/3;object-fit:contain;display:block;background:var(--bd)}
 .card .b{padding:10px 12px}.card .t{font-weight:600;font-size:14px;min-height:36px}
 .price{color:var(--ac);font-weight:800;font-size:17px}
 .badge{position:absolute;top:8px;left:8px;background:#000a;color:#fff;font-size:11px;border-radius:6px;padding:3px 8px}
@@ -47,12 +47,15 @@ label{font-size:13px;color:var(--mu)}
 .tag{font-size:12px;background:var(--bd);border-radius:6px;padding:2px 8px;color:var(--mu)}
 .msg{color:var(--ac);font-size:14px;min-height:18px;margin-bottom:6px}.msg.ok{color:var(--ok)}
 .det{white-space:pre-wrap;line-height:1.55}
-.dimg{width:100%;max-height:440px;object-fit:contain;background:var(--bd);border-radius:12px}
+.dimg{width:100%;height:340px;max-width:100%;object-fit:contain;background:var(--bd);border-radius:12px;display:block}
 .spec{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}.spec div{background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:8px 14px}.spec b{display:block}
 .cr{display:flex;gap:8px;align-items:center}.cr .code{flex:1;margin:6px 0 12px}.cp{padding:5px 10px;font-size:12px;margin-left:6px}.cr .cp{margin:0 0 6px}
 .card.off{cursor:default}.card.off:hover{transform:none;box-shadow:none}.card.off img{filter:grayscale(1);opacity:.5}
 .stt{font-size:13px;font-weight:700;margin-top:2px}.stt.cn{color:var(--ok)}.stt.sd{color:var(--mu)}
 @media(max-width:600px){.grid{grid-template-columns:repeat(2,1fr);gap:10px}.card .t{font-size:13px;min-height:34px}.price{font-size:15px}.card .b{padding:8px 9px}main{padding:12px}.hero{padding:20px 16px}.hero h1{font-size:21px}}
+img{max-width:100%}.two>*,.row>*{min-width:0}.card{min-width:0}
+.pr{display:flex;align-items:baseline;flex-wrap:wrap;gap:0 6px}.old{color:var(--mu);text-decoration:line-through;font-weight:400;font-size:12px}
+@media(max-width:600px){.dimg{height:260px}}
 .sec{background:var(--bg);border:1px dashed var(--ok);border-radius:10px;padding:12px;margin-top:12px;white-space:pre-wrap}
 .code{background:var(--bg);border:1px dashed var(--pr);border-radius:10px;padding:10px;font-weight:800;font-size:18px;letter-spacing:1px;text-align:center;margin:6px 0 12px;word-break:break-all}
 .qr{display:block;max-width:240px;width:100%;margin:8px auto;border-radius:10px;background:#fff}
@@ -82,9 +85,11 @@ var esc=function(s){var d=document.createElement("div");d.textContent=s==null?""
 var num=function(s){return Number(($(s).value||"").replace(/\D/g,""))};
 var cpBtn=function(t){return '<button type="button" class="g cp" data-cp="'+esc(t)+'">Sao chép</button>'};
 var isA=function(){return me&&me.role==="admin"};
+var pct=function(a){return a.old_price>a.price?Math.round((a.old_price-a.price)*100/a.old_price):0};
+function showPct(){var el=$("#pct");if(!el)return;var p=num("#pr"),d=Math.min(90,Number(($("#op").value||"").replace(/\D/g,"")));el.textContent=d>0&&p>0?"Giá gốc hiển thị: "+fmt(Math.round(p*100/(100-d)))+" (giảm "+d+"%)":"Không giảm giá"}
 var mk=function(){return '<div class="msg'+(ok?' ok':'')+'">'+esc(msg)+'</div>'};
 var chk=function(r){if(r.error)throw r.error;return r.data};
-function viErr(m){m=m||"";if(/Invalid login/i.test(m))return "Sai email hoặc mật khẩu";if(/not confirmed/i.test(m))return "Email chưa được xác nhận, hãy kiểm tra hộp thư";if(/rate limit|too many/i.test(m))return "Thao tác quá nhanh, hãy thử lại sau ít phút";if(/at least 6|weak/i.test(m))return "Mật khẩu quá yếu (tối thiểu 6 ký tự)";return m}
+function viErr(m){m=m||"";if(/old_price/.test(m))return "Chưa thêm cột giảm giá vào Supabase. Hãy chạy SQL thêm cột old_price rồi thử lại";if(/Invalid login/i.test(m))return "Sai email hoặc mật khẩu";if(/not confirmed/i.test(m))return "Email chưa được xác nhận, hãy kiểm tra hộp thư";if(/rate limit|too many/i.test(m))return "Thao tác quá nhanh, hãy thử lại sau ít phút";if(/at least 6|weak/i.test(m))return "Mật khẩu quá yếu (tối thiểu 6 ký tự)";return m}
 function note(m,g){msg=m;ok=!!g;render()}
 function err(e){note("Lỗi: "+viErr(e&&e.message||String(e)))}
 function go(n,x,t){view={n:n,x:x,t:t||view.t};msg="";ok=false;render();window.scrollTo(0,0)}
@@ -138,7 +143,7 @@ function gridHtml(){
   l.sort(function(a,b){return (a.status==="sold"?1:0)-(b.status==="sold"?1:0)});
   if(!loaded)return "<p>Đang tải…</p>";
   if(!l.length)return "<p>Không có acc phù hợp.</p>";
-  return '<div class="grid">'+l.map(function(a){var can=canView(a),sold=a.status==="sold";return '<div class="card'+(can?'':' off')+'"'+(can?' data-acc="'+esc(a.id)+'"':'')+'><img src="'+esc(a.image_url)+'" alt=""><span class="badge">'+esc(a.game)+'</span><div class="b"><div class="t">'+esc(a.title)+'</div><div class="price">'+fmt(a.price)+'</div><div class="stt '+(sold?'sd':'cn')+'">'+(sold?'Đã bán':'Còn')+'</div></div></div>'}).join("")+'</div>';
+  return '<div class="grid">'+l.map(function(a){var can=canView(a),sold=a.status==="sold",pc=pct(a);return '<div class="card'+(can?'':' off')+'"'+(can?' data-acc="'+esc(a.id)+'"':'')+'><img src="'+esc(a.image_url)+'" alt=""><span class="badge">'+esc(a.game)+'</span>'+(pc&&!sold?'<span class="badge so">-'+pc+'%</span>':'')+'<div class="b"><div class="t">'+esc(a.title)+'</div><div class="pr"><span class="price">'+fmt(a.price)+'</span>'+(pc?'<s class="old">'+fmt(a.old_price)+'</s>':'')+'</div><div class="stt '+(sold?'sd':'cn')+'">'+(sold?'Đã bán':'Còn')+'</div></div></div>'}).join("")+'</div>';
 }
 function home(){
   var on=accounts.filter(function(a){return a.status!=="sold"}).length;
@@ -152,19 +157,19 @@ function detail(){
   var a=accounts.find(function(x){return x.id===view.x}),back='<button class="g" data-go="home">← Quay lại</button>';
   if(!a)return back+"<p>Không tìm thấy acc.</p>";
   if(!canView(a))return back+'<div class="box"><p>Acc này đã bán.</p></div>';
-  var sold=a.status==="sold";
+  var sold=a.status==="sold",pc=pct(a);
   var sp=[["Game",a.game],["Rank",a.rank],["Số tướng",a.heroes],["Số skin",a.skins]].filter(function(x){return x[1]}).map(function(x){return '<div><span class="tag">'+x[0]+'</span><b>'+esc(x[1])+'</b></div>'}).join("");
-  var h=back+'<div class="box w"><div class="two"><img class="dimg" src="'+esc(a.image_url)+'" alt=""><div><h2 style="margin-top:0">'+esc(a.title)+'</h2><div class="price" style="font-size:26px">'+fmt(a.price)+'</div><div class="spec">'+sp+'</div>';
+  var h=back+'<div class="box w"><div class="two"><img class="dimg" src="'+esc(a.image_url)+'" alt=""><div><h2 style="margin-top:0">'+esc(a.title)+'</h2><div class="pr"><span class="price" style="font-size:26px">'+fmt(a.price)+'</span>'+(pc?'<s class="old" style="font-size:16px">'+fmt(a.old_price)+'</s><span class="badge so" style="position:static;margin-left:6px">-'+pc+'%</span>':'')+'</div><div class="spec">'+sp+'</div>';
   if(sold){h+='<p class="stt sd">Đã bán</p>';
     if(secrets[a.id]!==undefined)h+='<div class="sec"><b>Thông tin đăng nhập:</b>\n'+esc(secrets[a.id])+'</div><div style="margin-top:6px">'+cpBtn(secrets[a.id])+'</div>';}
   else if(!me)h+='<button data-go="login">Đăng nhập để mua</button>';
   else if(isA())h+='<button class="d" data-del="'+esc(a.id)+'">Xóa acc</button>';
   else h+='<button data-buy="'+esc(a.id)+'">Mua ngay</button>';
-  return h+mk()+'</div></div><h3>Thông tin chi tiết</h3><div class="det">'+esc(a.details||"Chưa có mô tả.")+'</div></div>';
+  h+=(isA()?'<p><button class="g" data-edit="'+esc(a.id)+'">✏️ Sửa acc</button></p>':'');return h+mk()+'</div></div><h3>Thông tin chi tiết</h3><div class="det">'+esc(a.details||"Chưa có mô tả.")+'</div></div>';
 }
 
 function loginPage(){return '<div class="box"><h2>Đăng nhập</h2><label>Email</label><input id="em" type="email" autocomplete="email"><label>Mật khẩu</label><input id="p" type="password" autocomplete="current-password">'+mk()+'<button id="go">Đăng nhập</button> <button class="g" data-go="forgot">Quên mật khẩu?</button></div>'}
-function regPage(){return '<div class="box"><h2>Đăng ký tài khoản</h2><label>Email (dùng để đăng nhập và nhận mã xác nhận)</label><input id="em" type="email" autocomplete="email"><div class="row"><div><label>Tên hiển thị</label><input id="u" autocomplete="username"></div><div><label>Họ và tên</label><input id="fn"></div></div><label>Số điện thoại</label><input id="ph" inputmode="tel"><label>Mật khẩu</label><input id="p" type="password" autocomplete="new-password"><label>Nhập lại mật khẩu</label><input id="p2" type="password">'+mk()+'<button id="go">Tạo tài khoản</button><p class="tag">Sau khi đăng ký, hãy bấm link xác nhận gửi về email.</p></div>'}
+function regPage(){return '<div class="box"><h2>Đăng ký tài khoản</h2><label>Email (dùng để đăng nhập và nhận mã xác nhận)</label><input id="em" type="email" autocomplete="email"><label>Tên hiển thị</label><input id="u" autocomplete="username"><label>Mật khẩu</label><input id="p" type="password" autocomplete="new-password"><label>Nhập lại mật khẩu</label><input id="p2" type="password">'+mk()+'<button id="go">Tạo tài khoản</button><p class="tag">Sau khi đăng ký, hãy bấm link xác nhận gửi về email. Họ tên và số điện thoại bạn cập nhật sau trong mục Tài khoản.</p></div>'}
 function forgotPage(){return '<div class="box"><h2>Quên mật khẩu</h2><label>Email đã đăng ký</label><input id="em" type="email">'+mk()+'<button id="fpgo">Gửi link đặt lại mật khẩu</button> <button class="g" data-go="login">Quay lại</button></div>'}
 function recoverPage(){return '<div class="box"><h2>Đặt mật khẩu mới</h2><label>Mật khẩu mới</label><input id="np" type="password"><label>Nhập lại mật khẩu mới</label><input id="np2" type="password">'+mk()+'<button id="rcgo">Đổi mật khẩu</button></div>'}
 
@@ -191,11 +196,29 @@ function profile(){
   return '<div class="box"><h2>Thông tin tài khoản</h2><label>Email</label><input value="'+esc(me.email)+'" disabled><div class="row"><div><label>Tên hiển thị</label><input value="'+esc(me.username)+'" disabled></div><div><label>Loại tài khoản</label><input value="'+(isA()?"Admin":"Người dùng")+'" disabled></div></div><label>Số dư</label><input value="'+fmt(me.balance)+'" disabled><label>Họ và tên</label><input id="fn" value="'+esc(me.full_name)+'"><label>Số điện thoại</label><input id="ph" value="'+esc(me.phone)+'"><label>Nội dung nạp tiền của bạn</label><div class="cr"><div class="code">'+esc(me.topup_code)+'</div>'+cpBtn(me.topup_code)+'</div><p class="tag">Tham gia từ '+dt(me.created_at)+'</p>'+mk()+'<button id="profgo">Lưu thông tin</button></div>';
 }
 
+function accForm(a){
+  var m=function(n){return n?Number(n).toLocaleString("vi-VN"):""},x=function(k){return esc(a[k])};
+  return '<div class="row"><div><label>Tên acc</label><input id="t" value="'+x("title")+'" placeholder="VD: Acc rank Cao Thủ full tướng"></div><div><label>Game</label><input id="g" value="'+esc(a.game||GAME)+'"></div><div><label>Giá bán (VNĐ)</label><input id="pr" class="money" inputmode="numeric" value="'+m(a.price)+'" placeholder="0"></div><div><label>Giảm giá (%) – bỏ trống nếu không giảm</label><input id="op" inputmode="numeric" maxlength="2" value="'+(pct(a)||"")+'" placeholder="VD: 20"></div></div><div id="pct" class="tag" style="display:inline-block;margin-bottom:10px"></div><div class="row"><div><label>Rank</label><input id="rk" value="'+x("rank")+'"></div><div><label>Số tướng</label><input id="hr" value="'+x("heroes")+'"></div><div><label>Số skin</label><input id="sk" value="'+x("skins")+'"></div></div><label>Ảnh acc'+(a.id?' (bỏ trống để giữ ảnh cũ)':'')+'</label><input id="f" type="file" accept="image/*"><label>Mô tả chi tiết</label><textarea id="d" rows="5">'+x("details")+'</textarea><label>Tài khoản / mật khẩu giao cho người mua</label><textarea id="s" rows="2">'+esc(a.id?secrets[a.id]:"")+'</textarea>';
+}
+function editPage(){
+  var a=accounts.find(function(x){return x.id===view.x});if(!a)return home();
+  return '<button class="g" data-acc="'+esc(a.id)+'">← Quay lại</button><div class="box w" style="margin-top:12px"><h3 style="margin-top:0">Sửa acc</h3>'+accForm(a)+mk()+'<button id="editgo">Lưu thay đổi</button></div>';
+}
+function readForm(){
+  var p=num("#pr"),d=Math.min(90,Number(($("#op").value||"").replace(/\D/g,"")));
+  return {title:$("#t").value.trim(),game:$("#g").value.trim()||GAME,price:p,old_price:d>0&&p>0?Math.round(p*100/(100-d)):0,rank:$("#rk").value.trim(),heroes:$("#hr").value.trim(),skins:$("#sk").value.trim(),details:$("#d").value,secret:$("#s").value,file:$("#f").files[0],hasPrice:!!$("#pr").value};
+}
+function checkForm(v,needImg){
+  if(!v.title)return "Nhập tên acc";
+  if(!v.hasPrice)return "Nhập giá bán";
+  if(needImg&&!v.file)return "Chọn ảnh acc";
+  return "";
+}
 function admin(){
   var T=[["acc","Đăng acc"],["nap","Cộng tiền"],["card","Duyệt thẻ"],["users","Người dùng"],["qr","Cài QR"]],t=view.t;
   var p=cards.filter(function(c){return c.status==="pending"});
   var h='<h2>Quản trị</h2><div class="tabs">'+T.map(function(x){return '<button class="'+(t===x[0]?"":"g")+'" data-tab="'+x[0]+'">'+x[1]+(x[0]==="card"&&p.length?" ("+p.length+")":"")+'</button>'}).join("")+'</div>';
-  if(t==="acc")h+='<div class="box w"><div class="row"><div><label>Tên acc</label><input id="t" placeholder="VD: Acc rank Cao Thủ full tướng"></div><div><label>Game</label><input id="g" value="'+GAME+'"></div><div><label>Giá (VNĐ)</label><input id="pr" class="money" inputmode="numeric" placeholder="0"></div><div><label>Rank</label><input id="rk"></div><div><label>Số tướng</label><input id="hr"></div><div><label>Số skin</label><input id="sk"></div></div><label>Ảnh acc</label><input id="f" type="file" accept="image/*"><label>Mô tả chi tiết</label><textarea id="d" rows="5"></textarea><label>Tài khoản / mật khẩu giao cho người mua</label><textarea id="s" rows="2"></textarea>'+mk()+'<button id="addgo">Đăng acc</button></div>';
+  if(t==="acc")h+='<div class="box w">'+accForm({})+mk()+'<button id="addgo">Đăng acc</button></div>';
   if(t==="nap")h+='<div class="box"><h3 style="margin-top:0">Cộng tiền khi nhận chuyển khoản</h3><label>Nội dung CK của khách (hoặc tên hiển thị)</label><input id="k" placeholder="VD: NAPK7M2QX"><label>Số tiền đã nhận (VNĐ)</label><input id="am" class="money" inputmode="numeric" placeholder="0">'+mk()+'<button class="s" id="credgo">Xác nhận cộng tiền</button></div>';
   if(t==="card")h+=p.length?'<div class="box w tw"><table><tr><th>Thời gian</th><th>Tài khoản</th><th>Thẻ</th><th>Seri</th><th>Mã thẻ</th><th></th></tr>'+p.map(function(c){return '<tr><td>'+dt(c.created_at)+'</td><td>'+esc(c.username)+'</td><td>'+esc(c.telco)+' '+fmt(c.amount)+'</td><td>'+esc(c.serial)+' '+cpBtn(c.serial)+'</td><td>'+esc(c.pin)+' '+cpBtn(c.pin)+'</td><td><button class="s" data-ap="'+c.id+'">Duyệt</button> <button class="d" data-rj="'+c.id+'">Từ chối</button></td></tr>'}).join("")+'</table></div>':'<p>Không có thẻ chờ duyệt.</p>'+mk();
   if(t==="users")h+='<div class="box w tw"><table><tr><th>Tên</th><th>Họ tên</th><th>SĐT</th><th>Email</th><th>Nội dung nạp</th><th>Số dư</th><th>Quyền</th><th></th></tr>'+users.map(function(u){return '<tr><td>'+esc(u.username)+'</td><td>'+esc(u.full_name)+'</td><td>'+esc(u.phone)+'</td><td>'+esc(u.email)+'</td><td>'+esc(u.topup_code)+' '+cpBtn(u.topup_code)+'</td><td>'+fmt(u.balance)+'</td><td>'+u.role+'</td><td>'+(u.role==="admin"?"":'<button class="d" data-du="'+u.id+'">Xóa</button>')+'</td></tr>'}).join("")+'</table></div>'+mk();
@@ -205,17 +228,18 @@ function admin(){
 
 function render(){
   renderNav();
-  var v=view.n,h="",need=["topup","history","profile","admin"].indexOf(v)>-1;
+  var v=view.n,h="",need=["topup","history","profile","admin","edit"].indexOf(v)>-1;
   if(!loaded){$("#app").innerHTML="<p>Đang tải dữ liệu…</p>";return}
   if(need&&!me)v="login";
   if(v==="home")h=home();else if(v==="acc")h=detail();
   else if(v==="login")h=loginPage();else if(v==="register")h=regPage();else if(v==="forgot")h=forgotPage();
   else if(v==="recover")h=recov?recoverPage():loginPage();
   else if(v==="topup")h=isA()?admin():topup();else if(v==="history")h=history();
-  else if(v==="profile")h=profile();else if(v==="admin")h=isA()?admin():home();
+  else if(v==="profile")h=profile();else if(v==="edit")h=isA()?editPage():home();else if(v==="admin")h=isA()?admin():home();
   var ae=document.activeElement,id=ae&&ae.id,val=ae&&ae.value;
   $("#app").innerHTML=h;
   if(id==="q"){var q=$("#q");q.focus();q.setSelectionRange(val.length,val.length)}
+  showPct();
 }
 
 function resize(file,max,type){
@@ -238,15 +262,13 @@ async function doLogin(){
   try{var r=await sb.auth.signInWithPassword({email:e,password:p});if(r.error)throw r.error;await refresh();go("home")}catch(x){err(x)}
 }
 async function doReg(){
-  var e=$("#em").value.trim(),u=$("#u").value.trim().toLowerCase(),fn=$("#fn").value.trim(),ph=$("#ph").value.trim(),p=$("#p").value;
+  var e=$("#em").value.trim(),u=$("#u").value.trim().toLowerCase(),p=$("#p").value;
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e))return note("Email không hợp lệ");
   if(!/^[a-z0-9_]{3,20}$/.test(u))return note("Tên hiển thị 3-20 ký tự: chữ thường, số, _");
-  if(!fn)return note("Nhập họ và tên");
-  if(ph&&!/^(0|\+84)\d{9,10}$/.test(ph.replace(/[\s.\-]/g,"")))return note("Số điện thoại không hợp lệ");
   if(p.length<6)return note("Mật khẩu tối thiểu 6 ký tự");
   if($("#p2").value!==p)return note("Mật khẩu nhập lại không khớp");
   try{
-    var r=await sb.auth.signUp({email:e,password:p,options:{data:{username:u,full_name:fn,phone:ph},emailRedirectTo:location.origin+location.pathname}});
+    var r=await sb.auth.signUp({email:e,password:p,options:{data:{username:u},emailRedirectTo:location.origin+location.pathname}});
     if(r.error)throw r.error;
     go("login");note("✔ Đã gửi email xác nhận tới "+e+". Hãy bấm link trong email rồi đăng nhập.",1);
   }catch(x){err(x)}
@@ -262,15 +284,24 @@ async function doRecover(){
   try{var r=await sb.auth.updateUser({password:a});if(r.error)throw r.error;recov=false;await refresh();go("home")}catch(x){err(x)}
 }
 async function addAcc(){
-  var t=$("#t").value.trim(),f=$("#f").files[0];
-  if(!t||!$("#pr").value||!f)return note("Nhập tên, giá và chọn ảnh");
+  var v=readForm(),e=checkForm(v,true);if(e)return note(e);
   try{
     note("Đang đăng acc…",1);
-    var url=await upload("acc/"+rid()+".jpg",await resize(f,900,"jpg"));
-    var r=chk(await sb.from("accounts").insert({title:t,game:$("#g").value.trim()||GAME,price:num("#pr"),rank:$("#rk").value.trim(),heroes:$("#hr").value.trim(),skins:$("#sk").value.trim(),details:$("#d").value,image_url:url}).select("id").single());
-    chk(await sb.from("account_secrets").insert({account_id:r.id,secret:$("#s").value}));
+    var url=await upload("acc/"+rid()+".jpg",await resize(v.file,900,"jpg"));
+    var r=chk(await sb.from("accounts").insert({title:v.title,game:v.game,price:v.price,old_price:v.old_price,rank:v.rank,heroes:v.heroes,skins:v.skins,details:v.details,image_url:url}).select("id").single());
+    chk(await sb.from("account_secrets").insert({account_id:r.id,secret:v.secret}));
     await refresh();go("home");
-  }catch(e){err(e)}
+  }catch(x){err(x)}
+}
+async function saveEdit(id){
+  var a=accounts.find(function(k){return k.id===id}),v=readForm(),e=checkForm(v,false);if(!a)return;if(e)return note(e);
+  try{
+    note("Đang lưu…",1);
+    var url=a.image_url;if(v.file)url=await upload("acc/"+rid()+".jpg",await resize(v.file,900,"jpg"));
+    chk(await sb.from("accounts").update({title:v.title,game:v.game,price:v.price,old_price:v.old_price,rank:v.rank,heroes:v.heroes,skins:v.skins,details:v.details,image_url:url}).eq("id",id));
+    chk(await sb.from("account_secrets").upsert({account_id:id,secret:v.secret}));
+    await refresh();go("acc",id);
+  }catch(x){err(x)}
 }
 async function buy(id){
   try{chk(await sb.rpc("buy_account",{p_account_id:id}));await refresh();note("✔ Mua thành công! Thông tin đăng nhập hiện ở bên dưới ảnh và trong mục Lịch sử.",1)}catch(e){await refresh();err(e)}
@@ -312,9 +343,10 @@ async function saveQr(){
 }
 
 document.addEventListener("click",function(e){
-  var t=e.target.closest("[data-go],[data-acc],[data-buy],[data-del],[data-g],[data-tab],[data-ap],[data-rj],[data-cp],[data-du],#go,#fpgo,#rcgo,#cardgo,#addgo,#credgo,#profgo,#qrgo");if(!t)return;
+  var t=e.target.closest("[data-go],[data-acc],[data-buy],[data-del],[data-g],[data-tab],[data-ap],[data-rj],[data-cp],[data-du],[data-edit],#editgo,#go,#fpgo,#rcgo,#cardgo,#addgo,#credgo,#profgo,#qrgo");if(!t)return;
   var d=t.dataset,i=t.id;
   if(d.cp!==undefined)return copy(d.cp,t);
+  if(d.edit)return go("edit",d.edit);if(i==="editgo")return saveEdit(view.x);
   if(i==="go")return view.n==="register"?doReg():doLogin();
   if(i==="fpgo")return doForgot();if(i==="rcgo")return doRecover();
   if(i==="cardgo")return sendCard();if(i==="addgo")return addAcc();if(i==="credgo")return adminCredit();
@@ -330,7 +362,9 @@ document.addEventListener("click",function(e){
 document.addEventListener("input",function(e){
   var t=e.target;
   if(t.id==="q"){flt.q=t.value;$("#grid").innerHTML=gridHtml()}
+  if(t.id==="op")t.value=t.value.replace(/\D/g,"").slice(0,2);
   if(t.classList.contains("money")){var d=t.value.replace(/\D/g,"");t.value=d?Number(d).toLocaleString("vi-VN"):""}
+  if(t.id==="pr"||t.id==="op")showPct();
 });
 document.addEventListener("keydown",function(e){if(e.key==="Enter"&&e.target.id&&["em","p","p2"].indexOf(e.target.id)>-1&&$("#go"))$("#go").click()});
 
