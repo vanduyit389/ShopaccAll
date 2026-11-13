@@ -261,6 +261,8 @@ textarea.inp{resize:vertical;min-height:80px;font:inherit}
 .fgrid{display:grid;gap:0 12px;grid-template-columns:1fr 1fr}
 .fgrid>*,.two>*{min-width:0}
 .tagi{color:var(--gd);font-size:13px;font-weight:600;margin:-6px 0 14px}
+.two2{display:grid;gap:16px;grid-template-columns:1fr}@media(min-width:760px){.two2{grid-template-columns:260px 1fr}}
+.rv{width:100%;max-height:280px;object-fit:contain;background:var(--bg2);border-radius:12px}
 .btn.sm{padding:6px 12px;font-size:13px}
 .qrimg{display:block;width:100%;max-width:240px;margin:0 auto 14px;border-radius:12px;background:#fff}
 .tabs{max-width:100%}
@@ -278,6 +280,7 @@ img{max-width:100%}
       <button data-go="wheel"><i data-ic="gift"></i>Vòng quay</button>
       <button data-go="topup"><i data-ic="wallet"></i>Nạp tiền</button>
       <button data-go="history"><i data-ic="clock"></i>Lịch sử</button>
+      <button data-go="sell" id="navSell" style="display:none"><i data-ic="plus"></i>Đăng bán</button>
       <button data-go="admin" id="navAdmin" style="display:none"><i data-ic="shield"></i>Quản trị</button>
     </nav>
     <div class="hd-r" id="hdr"></div>
@@ -286,6 +289,7 @@ img{max-width:100%}
     <button data-go="profile"><i data-ic="user"></i>Tài khoản của tôi</button>
     <button data-go="history"><i data-ic="clock"></i>Lịch sử giao dịch</button>
     <button data-go="topup"><i data-ic="wallet"></i>Nạp tiền</button>
+    <button data-go="sell" id="menuSell" style="display:none"><i data-ic="plus"></i>Đăng bán acc</button>
     <button data-go="admin" id="menuAdmin" style="display:none"><i data-ic="shield"></i>Quản trị</button>
     <div class="sep"></div>
     <button id="logout" style="color:var(--rd)"><i data-ic="logout"></i>Đăng xuất</button>
@@ -312,7 +316,7 @@ img{max-width:100%}
     <div class="stats">
       <div class="stat"><div class="ic" data-ic="box"></div><div><b id="stOn">0</b><small>Acc đang bán</small></div></div>
       <div class="stat"><div class="ic" data-ic="check"></div><div><b id="stSold">0</b><small>Acc đã bán</small></div></div>
-      <div class="stat"><div class="ic" data-ic="users"></div><div><b>52.104</b><small>Thành viên</small></div></div>
+      <div class="stat"><div class="ic" data-ic="users"></div><div><b id="stMem">…</b><small>Thành viên</small></div></div>
       <div class="stat"><div class="ic" data-ic="shield"></div><div><b>100%</b><small>Bảo hành uy tín</small></div></div>
     </div>
 
@@ -467,6 +471,12 @@ img{max-width:100%}
     </div>
   </section>
 
+  <!-- SELL -->
+  <section class="view" id="v-sell">
+    <div class="page-h"><h1>Đăng bán acc</h1><p>Acc của bạn sẽ hiện trên web sau khi admin kiểm tra và duyệt</p></div>
+    <div id="sBody"></div>
+  </section>
+
   <!-- ADMIN -->
   <section class="view" id="v-admin">
     <div class="page-h"><h1>Quản trị</h1><p>Đăng acc, cộng tiền, duyệt thẻ và quản lý người dùng</p></div>
@@ -511,18 +521,19 @@ IC.trash='<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>';
 const SB_URL="https://dnjtfyviroswhyiipgwb.supabase.co",SB_KEY="sb_publishable_hwC6nRO5z48_4yTMH6K69g_NpjTaos6";
 const sb=window.supabase?window.supabase.createClient(SB_URL,SB_KEY):null;
 const RANKS=['Kim Cương','Tinh Anh','Cao Thủ','Chiến Tướng','Thách Đấu'],CATS=['VIP','Random','Trắng TT','Giá rẻ'],GAME='Liên Quân Mobile';
-const S={me:null,accs:[],sec:{},buys:[],txns:[],cards:[],users:[],bank:{},cat:'',amt:50000,view:'home',hTab:'buy',aTab:'acc',edit:null,loaded:false};
+const S={me:null,members:null,accs:[],sec:{},buys:[],txns:[],cards:[],users:[],bank:{},cat:'',amt:50000,view:'home',hTab:'buy',aTab:'acc',edit:null,loaded:false};
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const chk=r=>{if(r.error)throw r.error;return r.data};
 const isA=()=>!!S.me&&S.me.role==='admin';
 const pct=a=>a.old_price>a.price?Math.round((a.old_price-a.price)*100/a.old_price):0;
 const acode=id=>String(id||'').slice(0,6).toUpperCase();
+const isLive=a=>!a.approval||a.approval==='approved';
 const mineBuy=a=>S.buys.some(b=>b.account_id===a.id);
 const canOpen=a=>a.status!=='sold'||isA()||mineBuy(a);
 const dtf=t=>t?new Date(t).toLocaleString('vi-VN',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit',year:'numeric'}):'';
 const rid=()=>Date.now()+'-'+Math.random().toString(36).slice(2,8);
 const typing=()=>{const a=document.activeElement;return !!a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)};
-function viErr(m){m=m||'';if(/Invalid login/i.test(m))return 'Sai email hoặc mật khẩu';if(/not confirmed/i.test(m))return 'Email chưa được xác nhận, hãy kiểm tra hộp thư';if(/rate limit|too many/i.test(m))return 'Thao tác quá nhanh, hãy thử lại sau ít phút';if(/at least 6|weak/i.test(m))return 'Mật khẩu quá yếu (tối thiểu 6 ký tự)';if(/Could not find the '(old_price|cat|sss)' column/i.test(m))return 'Chưa chạy SQL thêm cột mới trong Supabase (old_price, cat, sss)';return m}
+function viErr(m){m=m||'';if(/Invalid login/i.test(m))return 'Sai email hoặc mật khẩu';if(/not confirmed/i.test(m))return 'Email chưa được xác nhận, hãy kiểm tra hộp thư';if(/rate limit|too many/i.test(m))return 'Thao tác quá nhanh, hãy thử lại sau ít phút';if(/at least 6|weak/i.test(m))return 'Mật khẩu quá yếu (tối thiểu 6 ký tự)';if(/Could not find the '(old_price|cat|sss|seller_id|seller_name|approval|reject_reason)' column/i.test(m))return 'Chưa chạy SQL cập nhật mới trong Supabase, hãy chạy file SQL rồi thử lại';if(/row-level security/i.test(m))return 'Không có quyền thực hiện (hãy chắc chắn đã chạy SQL cập nhật mới)';return m}
 let tt;function toast(m,c){const t=$('#toast');t.textContent=m;t.style.borderLeftColor=c||'var(--gd)';t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2800)}
 function setErr(id,m){$(id).textContent=m||'';return !m}
 async function copyTxt(t){try{await navigator.clipboard.writeText(t)}catch(e){const a=document.createElement('textarea');a.value=t;a.style.cssText='position:fixed;opacity:0';document.body.appendChild(a);a.select();try{document.execCommand('copy')}catch(x){}a.remove()}toast('Đã sao chép')}
@@ -533,8 +544,8 @@ async function refresh(soft){
   if(!sb){S.loaded=true;renderAll();return}
   try{
     const s=(await sb.auth.getSession()).data.session,uid=s&&s.user.id;
-    const [ra,rb]=await Promise.all([sb.from('accounts').select('*').order('created_at',{ascending:false}),sb.from('settings').select('value').eq('key','bank').maybeSingle()]);
-    S.accs=ra.data||[];S.bank=(rb.data&&rb.data.value)||{};S.me=null;S.sec={};S.buys=[];S.txns=[];S.cards=[];S.users=[];
+    const [ra,rb,rc]=await Promise.all([sb.from('accounts').select('*').order('created_at',{ascending:false}),sb.from('settings').select('value').eq('key','bank').maybeSingle(),sb.rpc('member_count')]);
+    S.accs=ra.data||[];S.bank=(rb.data&&rb.data.value)||{};S.members=rc.error||rc.data==null?null:Number(rc.data);S.me=null;S.sec={};S.buys=[];S.txns=[];S.cards=[];S.users=[];
     if(uid){
       const q=await Promise.all([
         sb.from('profiles').select('*').eq('id',uid).maybeSingle(),
@@ -554,7 +565,8 @@ function renderAll(soft){
   if(S.view==='history')renderHist();
   if(S.view==='profile'&&!(soft&&typing()))renderProfile();
   if(S.view==='admin'&&!(soft&&typing()))renderAdmin();
-  if(['history','topup','profile','admin'].includes(S.view)&&S.loaded&&!S.me)go('login');
+  if(S.view==='sell'&&!(soft&&typing()))renderSell();
+  if(['history','topup','profile','admin','sell'].includes(S.view)&&S.loaded&&!S.me)go('login');
 }
 
 /* ---------- header / điều hướng ---------- */
@@ -565,13 +577,15 @@ function renderHeader(){
     $('#avaBtn').onclick=e=>{e.stopPropagation();$('#menu').classList.toggle('open')};
   }else h.innerHTML=`<button class="btn btn-ol hide-sm" data-go="login">Đăng nhập</button><button class="btn btn-gd" data-go="register">Đăng ký</button>`;
   $('#navAdmin').style.display=$('#menuAdmin').style.display=isA()?'':'none';
+  $('#navSell').style.display=$('#menuSell').style.display=(S.me&&!isA())?'':'none';
 }
 function go(v){
-  if(['history','topup','profile','admin'].includes(v)&&!S.me){toast('Vui lòng đăng nhập để tiếp tục');v='login'}
+  if(['history','topup','profile','admin','sell'].includes(v)&&!S.me){toast('Vui lòng đăng nhập để tiếp tục');v='login'}
   if(v==='admin'&&!isA())v='home';
+  if(v==='sell'&&isA())v='admin';
   S.view=v;$$('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v));
   $$('.nav [data-go],.bnav [data-go]').forEach(b=>b.classList.toggle('on',b.dataset.go===v));
-  if(v==='history')renderHist();if(v==='profile')renderProfile();if(v==='admin')renderAdmin();if(v==='topup')renderBank();
+  if(v==='history')renderHist();if(v==='profile')renderProfile();if(v==='admin')renderAdmin();if(v==='sell')renderSell();if(v==='topup')renderBank();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 document.addEventListener('click',e=>{
@@ -593,14 +607,15 @@ $('#chips').onclick=e=>{const b=e.target.closest('.chip');if(!b)return;S.cat=b.d
 $$('[data-cat]').forEach(b=>b.onclick=()=>{S.cat=b.dataset.cat;$$('.chip').forEach(x=>x.classList.toggle('on',x.dataset.c===S.cat));renderGrid();$('#list').scrollIntoView({behavior:'smooth'})});
 ['#q','#fRank','#fPrice','#fSort'].forEach(s=>$(s).addEventListener('input',renderGrid));
 function renderStats(){
-  const on=S.accs.filter(a=>a.status!=='sold').length;
-  $('#stOn').textContent=on;$('#stSold').textContent=S.accs.length-on;
-  $$('[data-cnt]').forEach(el=>el.textContent=S.accs.filter(a=>a.status!=='sold'&&a.cat===el.dataset.cnt).length+' acc');
+  const L=S.accs.filter(isLive),on=L.filter(a=>a.status!=='sold').length;
+  $('#stOn').textContent=on;$('#stSold').textContent=L.length-on;
+  $('#stMem').textContent=S.members==null?'—':S.members.toLocaleString('vi-VN');
+  $$('[data-cnt]').forEach(el=>el.textContent=L.filter(a=>a.status!=='sold'&&a.cat===el.dataset.cnt).length+' acc');
 }
 function renderGrid(){
   if(!S.loaded){$('#grid').innerHTML='<div class="empty">Đang tải danh sách acc…</div>';return}
   const q=$('#q').value.trim().toLowerCase(),r=$('#fRank').value,p=$('#fPrice').value,so=$('#fSort').value;
-  let L=S.accs.filter(a=>(!S.cat||a.cat===S.cat)&&(!r||a.rank===r)&&(!q||(acode(a.id)+' '+a.title+' '+(a.details||'')).toLowerCase().includes(q)));
+  let L=S.accs.filter(a=>isLive(a)&&(!S.cat||a.cat===S.cat)&&(!r||a.rank===r)&&(!q||(acode(a.id)+' '+a.title+' '+(a.details||'')).toLowerCase().includes(q)));
   if(p){const[a,b]=p.split('-').map(Number);L=L.filter(x=>x.price>=a&&x.price<b)}
   if(so==='asc')L.sort((a,b)=>a.price-b.price);if(so==='desc')L.sort((a,b)=>b.price-a.price);if(so==='skin')L.sort((a,b)=>(parseInt(b.skins)||0)-(parseInt(a.skins)||0));
   L=[...L.filter(a=>a.status!=='sold'),...L.filter(a=>a.status==='sold')];
@@ -624,7 +639,7 @@ ov.onclick=e=>{if(e.target===ov)closeModal()};
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
 const credBox=s=>`<div class="cred" style="display:block"><div style="display:block;white-space:pre-wrap;word-break:break-all" class="mono">${esc(s)}</div><div style="margin-top:6px">${cp(s)}</div></div>`;
 function openAcc(id){
-  const a=S.accs.find(x=>x.id===id);if(!a||!canOpen(a))return;
+  const a=S.accs.find(x=>x.id===id);if(!a||!isLive(a)||!canOpen(a))return;
   const sold=a.status==='sold',pc=pct(a),sec=S.sec[a.id];
   openModal(`<div class="md"><img src="${esc(a.image_url)}" alt="Ảnh tài khoản ${acode(a.id)}"><div class="in">
     ${a.rank?`<span class="pill">${svg('star')}${esc(a.rank)}</span>`:''}<h2>#${acode(a.id)} - ${esc(a.title)}</h2>
@@ -632,7 +647,7 @@ function openAcc(id){
     ${a.details?`<p class="det">${esc(a.details)}</p>`:''}
     <ul class="ul"><li>${svg('check')}Nhận tài khoản ngay sau thanh toán</li><li>${svg('check')}Bảo hành đăng nhập trọn đời</li><li>${svg('check')}Hỗ trợ đổi thông tin miễn phí</li></ul>
     ${sold&&sec!==undefined?`<b style="font-size:14px">Thông tin đăng nhập</b>${credBox(sec)}`:''}
-    <div class="pr" style="flex-direction:row;align-items:center"><div>${pc?`<s>${vnd(a.old_price)}</s>`:''}<span class="p" style="font-size:24px">${vnd(a.price)}</span></div>${sold?'<span class="st-b st-er">Đã bán</span>':isA()?'':`<button class="btn btn-gd" id="buyBtn">${svg('cart')}Mua ngay</button>`}</div>
+    <div class="pr" style="flex-direction:row;align-items:center"><div>${pc?`<s>${vnd(a.old_price)}</s>`:''}<span class="p" style="font-size:24px">${vnd(a.price)}</span></div>${sold?'<span class="st-b st-er">Đã bán</span>':(isA()||(S.me&&a.seller_id===S.me.id))?'':`<button class="btn btn-gd" id="buyBtn">${svg('cart')}Mua ngay</button>`}</div>
     ${isA()?`<div style="display:flex;gap:8px;margin-top:14px"><button class="btn btn-ol" id="mEdit">${svg('edit')}Sửa acc</button>${sold?'':`<button class="btn btn-ol" id="mDel" style="color:var(--rd)">${svg('trash')}Xóa</button>`}</div>`:''}
   </div></div>`);
   if($('#buyBtn'))$('#buyBtn').onclick=()=>buy(a);
@@ -741,12 +756,12 @@ $('#fPw').onsubmit=async e=>{e.preventDefault();const o=$('#op').value,a=$('#np'
 
 /* ---------- quản trị ---------- */
 function resize(file,max,type){return new Promise((res,rej)=>{const im=new Image(),u=URL.createObjectURL(file);im.onload=()=>{const r=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*r);c.height=Math.round(im.height*r);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(b=>b?res(b):rej(new Error('Ảnh không hợp lệ')),type==='png'?'image/png':'image/jpeg',.82)};im.onerror=()=>rej(new Error('Ảnh không hợp lệ'));im.src=u})}
-async function upload(path,blob){const r=await sb.storage.from('public-assets').upload(path,blob,{contentType:blob.type,upsert:true});if(r.error)throw r.error;return sb.storage.from('public-assets').getPublicUrl(path).data.publicUrl}
+async function upload(path,blob){const r=await sb.storage.from('public-assets').upload(path,blob,{contentType:blob.type,upsert:false});if(r.error)throw r.error;return sb.storage.from('public-assets').getPublicUrl(path).data.publicUrl}
 const numOf=s=>Number(($(s).value||'').replace(/\D/g,''));
 function accForm(){
   const a=S.edit?(S.accs.find(x=>x.id===S.edit)||{}):{},m=n=>n?Number(n).toLocaleString('vi-VN'):'',v=k=>esc(a[k]);
   const opt=(arr,cur,ph)=>`<option value="">${ph}</option>`+arr.map(x=>`<option ${cur===x?'selected':''}>${x}</option>`).join('');
-  return `<div class="box"><h3>${svg(a.id?'edit':'plus')}${a.id?'Sửa acc #'+acode(a.id):'Đăng acc mới'}</h3>
+  return `<div class="box"><h3>${svg(a.id?'edit':'plus')}${a.id?'Sửa acc #'+acode(a.id):'Đăng acc mới'}</h3>${isA()?'':'<div class="note" style="margin:0 0 14px"><span>Admin sẽ kiểm tra thông tin acc trước khi hiện lên web. Bạn chỉ sửa được acc khi đang chờ duyệt hoặc bị từ chối.</span></div>'}
   <div class="fg"><label class="lb">Tiêu đề acc</label><input class="inp" id="a_t" value="${v('title')}" placeholder="VD: Nakroth Lôi Quang Sứ + 3 skin SSS"></div>
   <div class="fgrid"><div class="fg"><label class="lb">Danh mục</label><select class="sel" id="a_c">${opt(CATS,a.cat,'-- Chọn danh mục --')}</select></div>
   <div class="fg"><label class="lb">Rank</label><select class="sel" id="a_r">${opt(RANKS,a.rank,'-- Chọn rank --')}</select></div>
@@ -765,20 +780,39 @@ function accForm(){
 function pvDisc(){const el=$('#a_pv');if(!el)return;const p=numOf('#a_p'),d=Math.min(90,Number(($('#a_d').value||'').replace(/\D/g,'')));el.textContent=d>0&&p>0?`Giá gốc hiển thị: ${vnd(Math.round(p*100/(100-d)))} (giảm ${d}%)`:'Không giảm giá'}
 function renderAdmin(){
   if(!isA())return;
-  const T=[['acc',S.edit?'Sửa acc':'Đăng acc'],['list','Quản lý acc'],['nap','Cộng tiền'],['card','Duyệt thẻ'],['users','Người dùng'],['qr','Cài QR']],pend=S.cards.filter(c=>c.status==='pending'),t=S.aTab;
-  $('#aTabs').innerHTML=T.map(([k,l])=>`<button class="${t===k?'on':''}" data-at="${k}">${l}${k==='card'&&pend.length?` (${pend.length})`:''}</button>`).join('');
+  const T=[['acc',S.edit?'Sửa acc':'Đăng acc'],['list','Quản lý acc'],['pend','Duyệt acc'],['nap','Cộng tiền'],['card','Duyệt thẻ'],['users','Người dùng'],['qr','Cài QR']],pend=S.cards.filter(c=>c.status==='pending'),pendA=S.accs.filter(a=>a.approval==='pending'),t=S.aTab;
+  $('#aTabs').innerHTML=T.map(([k,l])=>`<button class="${t===k?'on':''}" data-at="${k}">${l}${k==='card'&&pend.length?` (${pend.length})`:''}${k==='pend'&&pendA.length?` (${pendA.length})`:''}</button>`).join('');
   const B=$('#aBody');
   if(t==='acc'){B.innerHTML=accForm();pvDisc()}
-  if(t==='list')B.innerHTML=`<div class="tbl-w"><table class="tbl"><thead><tr><th>Mã</th><th>Tiêu đề</th><th>Giá</th><th>Trạng thái</th><th></th></tr></thead><tbody>${S.accs.length?S.accs.map(a=>`<tr><td><b>#${acode(a.id)}</b></td><td style="white-space:normal;min-width:180px">${esc(a.title)}</td><td style="color:var(--gd);font-weight:700">${vnd(a.price)}</td><td><span class="st-b ${a.status==='sold'?'st-er':'st-ok'}">${a.status==='sold'?'Đã bán':'Còn'}</span></td><td><button class="btn btn-ol sm" data-act="edit" data-id="${a.id}">${svg('edit')}Sửa</button> ${a.status==='sold'?'':`<button class="btn btn-ol sm" style="color:var(--rd)" data-act="del" data-id="${a.id}">${svg('trash')}Xóa</button>`}</td></tr>`).join(''):'<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--mu)">Chưa có acc nào</td></tr>'}</tbody></table></div>`;
+  if(t==='list')B.innerHTML=`<div class="tbl-w"><table class="tbl"><thead><tr><th>Mã</th><th>Tiêu đề</th><th>Người đăng</th><th>Giá</th><th>Duyệt</th><th>Trạng thái</th><th></th></tr></thead><tbody>${S.accs.length?S.accs.map(a=>`<tr><td><b>#${acode(a.id)}</b></td><td style="white-space:normal;min-width:180px">${esc(a.title)}</td><td>${esc(a.seller_name||'-')}</td><td style="color:var(--gd);font-weight:700">${vnd(a.price)}</td><td>${apBadge(a)}</td><td><span class="st-b ${a.status==='sold'?'st-er':'st-ok'}">${a.status==='sold'?'Đã bán':'Còn'}</span></td><td><button class="btn btn-ol sm" data-act="edit" data-id="${a.id}">${svg('edit')}Sửa</button> ${a.status==='sold'?'':`<button class="btn btn-ol sm" style="color:var(--rd)" data-act="del" data-id="${a.id}">${svg('trash')}Xóa</button>`}</td></tr>`).join(''):'<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--mu)">Chưa có acc nào</td></tr>'}</tbody></table></div>`;
+  if(t==='pend')B.innerHTML=pendA.length?pendA.map(reviewCard).join(''):'<div class="empty">Không có acc nào đang chờ duyệt.</div>';
   if(t==='nap')B.innerHTML=`<div class="box" style="max-width:460px"><h3>${svg('wallet')}Cộng tiền khi nhận chuyển khoản</h3><div class="fg"><label class="lb">Nội dung CK của khách (hoặc tên hiển thị)</label><input class="inp mono" id="n_k" placeholder="VD: NAPK7M2QX"></div><div class="fg"><label class="lb">Số tiền đã nhận (VNĐ)</label><input class="inp money" id="n_m" inputmode="numeric" placeholder="0"></div><button class="btn btn-gd btn-block" data-act="credit">Xác nhận cộng tiền</button></div>`;
   if(t==='card')B.innerHTML=pend.length?`<div class="tbl-w"><table class="tbl"><thead><tr><th>Thời gian</th><th>Tài khoản</th><th>Thẻ</th><th>Seri</th><th>Mã thẻ</th><th></th></tr></thead><tbody>${pend.map(c=>`<tr><td style="color:var(--mu)">${dtf(c.created_at)}</td><td>${esc(c.username)}</td><td>${esc(c.telco)} ${vnd(c.amount)}</td><td class="mono">${esc(c.serial)} ${cp(c.serial)}</td><td class="mono">${esc(c.pin)} ${cp(c.pin)}</td><td><button class="btn btn-gd sm" data-act="ap" data-id="${c.id}">Duyệt</button> <button class="btn btn-ol sm" style="color:var(--rd)" data-act="rj" data-id="${c.id}">Từ chối</button></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Không có thẻ chờ duyệt.</div>';
   if(t==='users')B.innerHTML=`<div class="tbl-w"><table class="tbl"><thead><tr><th>Tên</th><th>Họ tên</th><th>SĐT</th><th>Email</th><th>Nội dung nạp</th><th>Số dư</th><th>Quyền</th><th></th></tr></thead><tbody>${S.users.map(u=>`<tr><td><b>${esc(u.username)}</b></td><td>${esc(u.full_name)}</td><td>${esc(u.phone)}</td><td>${esc(u.email)}</td><td class="mono">${esc(u.topup_code)} ${cp(u.topup_code)}</td><td style="color:var(--gd);font-weight:700">${vnd(u.balance)}</td><td>${u.role}</td><td>${u.role==='admin'?'':`<button class="btn btn-ol sm" style="color:var(--rd)" data-act="du" data-id="${u.id}">${svg('trash')}Xóa</button>`}</td></tr>`).join('')}</tbody></table></div>`;
   if(t==='qr')B.innerHTML=`<div class="box" style="max-width:460px"><h3>${svg('bank')}Mã QR &amp; thông tin ngân hàng</h3>${S.bank.qr_url?`<img class="qrimg" src="${esc(S.bank.qr_url)}" alt="QR">`:''}<div class="fg"><label class="lb">Tải ảnh QR</label><input class="inp" id="q_f" type="file" accept="image/*"></div><div class="fg"><label class="lb">Thông tin ngân hàng (mỗi dòng một mục)</label><textarea class="inp" id="q_i" rows="4" placeholder="Ngân hàng: MB Bank&#10;Số TK: ...&#10;Chủ TK: ...">${esc(S.bank.info)}</textarea></div><button class="btn btn-gd btn-block" data-act="qr">Lưu</button></div>`;
 }
+const apBadge=a=>a.approval==='pending'?'<span class="st-b st-wt">Chờ duyệt</span>':a.approval==='rejected'?'<span class="st-b st-er">Bị từ chối</span>':'<span class="st-b st-ok">Đã duyệt</span>';
+function reviewCard(a){
+  const pc=pct(a),sec=S.sec[a.id];
+  return `<div class="box" style="margin-bottom:14px"><div class="two2"><img class="rv" src="${esc(a.image_url)}" alt=""><div>
+  <h3 style="margin:0 0 4px">#${acode(a.id)} - ${esc(a.title)}</h3>
+  <p class="tagi" style="margin:0 0 12px">Người đăng: <b>${esc(a.seller_name||'-')}</b> · ${dtf(a.created_at)}</p>
+  <div class="kv"><div><small>Danh mục</small><b>${esc(a.cat||'-')}</b></div><div><small>Rank</small><b>${esc(a.rank||'-')}</b></div><div><small>Giá bán</small><b>${vnd(a.price)}${pc?` (giảm ${pc}%, gốc ${vnd(a.old_price)})`:''}</b></div><div><small>Game</small><b>${esc(a.game)}</b></div><div><small>Số tướng</small><b>${esc(a.heroes||'-')}</b></div><div><small>Số skin / SSS</small><b>${esc(a.skins||'-')} / ${esc(a.sss||'-')}</b></div></div>
+  ${a.details?`<p class="det">${esc(a.details)}</p>`:''}
+  <b style="font-size:14px">Tài khoản / mật khẩu</b>${credBox(sec===undefined?'(chưa có)':sec)}
+  <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-gd" data-act="apv" data-id="${a.id}">${svg('check')}Duyệt</button><button class="btn btn-ol" style="color:var(--rd)" data-act="rej" data-id="${a.id}">Từ chối</button><button class="btn btn-ol" style="color:var(--rd)" data-act="del" data-id="${a.id}">${svg('trash')}Xóa</button></div></div></div></div>`;
+}
+function renderSell(){
+  if(!S.me||isA())return;
+  const mine=S.accs.filter(a=>a.seller_id===S.me.id);
+  $('#sBody').innerHTML=accForm()+'<h3 style="margin:24px 0 12px">Acc đã đăng của tôi</h3>'+(mine.length?`<div class="tbl-w"><table class="tbl"><thead><tr><th>Mã</th><th>Tiêu đề</th><th>Giá</th><th>Duyệt</th><th>Trạng thái</th><th></th></tr></thead><tbody>${mine.map(a=>`<tr><td><b>#${acode(a.id)}</b></td><td style="white-space:normal;min-width:160px">${esc(a.title)}</td><td style="color:var(--gd);font-weight:700">${vnd(a.price)}</td><td>${apBadge(a)}${a.approval==='rejected'&&a.reject_reason?`<div class="sd-t" style="white-space:normal;max-width:220px;font-size:12px">Lý do: ${esc(a.reject_reason)}</div>`:''}</td><td><span class="st-b ${a.status==='sold'?'st-er':'st-ok'}">${a.status==='sold'?'Đã bán':'Còn'}</span></td><td>${a.approval!=='approved'&&a.status!=='sold'?`<button class="btn btn-ol sm" data-act="edit" data-id="${a.id}">${svg('edit')}Sửa</button> <button class="btn btn-ol sm" style="color:var(--rd)" data-act="del" data-id="${a.id}">${svg('trash')}Xóa</button>`:''}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Bạn chưa đăng acc nào.</div>');
+  pvDisc();
+}
 async function saveAcc(btn){
   const p=numOf('#a_p'),d=Math.min(90,Number(($('#a_d').value||'').replace(/\D/g,'')));
   const row={title:$('#a_t').value.trim(),game:$('#a_g').value.trim()||GAME,cat:$('#a_c').value,rank:$('#a_r').value,price:p,old_price:d>0&&p>0?Math.round(p*100/(100-d)):0,heroes:$('#a_h').value.trim(),skins:$('#a_s').value.trim(),sss:$('#a_x').value.trim(),details:$('#a_e').value},secret=$('#a_k').value,file=$('#a_f').files[0],has=!!$('#a_p').value,id=S.edit;
   if(!row.title)return toast('Nhập tiêu đề acc','var(--rd)');if(!has)return toast('Nhập giá bán','var(--rd)');if(!id&&!file)return toast('Chọn ảnh acc','var(--rd)');
+  if(!id){row.seller_id=S.me.id;row.seller_name=S.me.username;row.approval=isA()?'approved':'pending'}else if(!isA()){row.approval='pending';row.reject_reason=''}
   const lbl=btn.textContent;btn.disabled=true;btn.textContent='Đang lưu…';
   try{
     row.image_url=id?(S.accs.find(x=>x.id===id)||{}).image_url:'';
@@ -786,22 +820,24 @@ async function saveAcc(btn){
     let aid=id;
     if(id)chk(await sb.from('accounts').update(row).eq('id',id));else aid=chk(await sb.from('accounts').insert(row).select('id').single()).id;
     chk(await sb.from('account_secrets').upsert({account_id:aid,secret:secret}));
-    S.edit=null;S.aTab='list';await refresh();toast(id?'Đã lưu thay đổi':'Đã đăng acc','var(--ok)');
+    S.edit=null;if(isA())S.aTab='list';await refresh();toast(id?(isA()?'Đã lưu thay đổi':'Đã gửi lại, vui lòng chờ admin duyệt'):(isA()?'Đã đăng acc':'Đã gửi acc, vui lòng chờ admin duyệt'),'var(--ok)');
   }catch(e){btn.disabled=false;btn.textContent=lbl;toast(viErr(e.message||String(e)),'var(--rd)')}
 }
 async function delAcc(id){
-  const a=S.accs.find(x=>x.id===id);if(!a)return;if(a.status==='sold')return toast('Không thể xóa acc đã bán','var(--rd)');
+  const a=S.accs.find(x=>x.id===id);if(!a)return;if(a.status==='sold')return toast('Không thể xóa acc đã bán (để giữ lịch sử của người mua)','var(--rd)');
   if(!confirm('Xóa acc #'+acode(id)+'?'))return;
-  try{chk(await sb.from('accounts').delete().eq('id',id));await refresh();toast('Đã xóa acc','var(--ok)')}catch(e){toast(viErr(e.message),'var(--rd)')}
+  try{const r=chk(await sb.from('accounts').delete().eq('id',id).select('id'));if(!r||!r.length)throw new Error('Không xóa được acc này (acc đã duyệt chỉ admin mới xóa được)');await refresh();toast('Đã xóa acc','var(--ok)')}catch(e){toast(viErr(e.message||String(e)),'var(--rd)')}
 }
-$('#v-admin').addEventListener('click',async e=>{
+const actHandler=async e=>{
   const at=e.target.closest('[data-at]');if(at){S.aTab=at.dataset.at;if(S.aTab!=='acc')S.edit=null;return renderAdmin()}
   const b=e.target.closest('[data-act]');if(!b)return;const act=b.dataset.act,id=b.dataset.id;
   try{
     if(act==='save')return saveAcc(b);
-    if(act==='cancel'){S.edit=null;return renderAdmin()}
-    if(act==='edit'){S.edit=id;S.aTab='acc';renderAdmin();return window.scrollTo({top:0,behavior:'smooth'})}
+    if(act==='cancel'){S.edit=null;return S.view==='sell'?renderSell():renderAdmin()}
+    if(act==='edit'){S.edit=id;S.aTab='acc';if(S.view==='sell')renderSell();else renderAdmin();return window.scrollTo({top:0,behavior:'smooth'})}
     if(act==='del')return delAcc(id);
+    if(act==='apv'){chk(await sb.from('accounts').update({approval:'approved',reject_reason:''}).eq('id',id));await refresh();toast('Đã duyệt, acc đã hiện trên web','var(--ok)');return}
+    if(act==='rej'){const r=prompt('Lý do từ chối (người đăng sẽ thấy):');if(r===null)return;chk(await sb.from('accounts').update({approval:'rejected',reject_reason:r.trim()}).eq('id',id));await refresh();toast('Đã từ chối acc','var(--ok)');return}
     if(act==='credit'){const k=$('#n_k').value.trim(),n=numOf('#n_m');if(!k)return toast('Nhập nội dung chuyển khoản','var(--rd)');if(!(n>0))return toast('Nhập số tiền hợp lệ','var(--rd)');
       if(!confirm('Cộng '+vnd(n)+' cho tài khoản có nội dung "'+k+'"?'))return;
       const r=chk(await sb.rpc('admin_credit',{p_key:k,p_amount:n}));await refresh();toast('Đã cộng '+vnd(n)+' cho '+r.username,'var(--ok)');return}
@@ -810,7 +846,8 @@ $('#v-admin').addEventListener('click',async e=>{
     if(act==='qr'){const d={info:$('#q_i').value,qr_url:S.bank.qr_url||''},f=$('#q_f').files[0];if(f)d.qr_url=await upload('qr/'+rid()+'.png',await resize(f,600,'png'));
       chk(await sb.from('settings').upsert({key:'bank',value:d,updated_at:new Date().toISOString()}));await refresh();toast('Đã lưu','var(--ok)');return}
   }catch(x){toast(viErr(x.message||String(x)),'var(--rd)')}
-});
+};
+$('#v-admin').addEventListener('click',actHandler);$('#v-sell').addEventListener('click',actHandler);
 document.addEventListener('input',e=>{
   const t=e.target;
   if(t.id==='a_d')t.value=t.value.replace(/\D/g,'').slice(0,2);
