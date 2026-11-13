@@ -322,19 +322,14 @@ img{max-width:100%}
 
     <div class="sec">
       <div class="sec-h"><div><h2>Danh mục nổi bật</h2><p>Chọn loại tài khoản phù hợp với bạn</p></div></div>
-      <div class="cats">
-        <button class="cat" data-cat="VIP"><img src="acc1.jpg" alt=""><span class="cnt" data-cnt="VIP">0 acc</span><span class="ct"><b>Acc VIP</b><small>Full skin SSS, rank Thách Đấu</small></span></button>
-        <button class="cat" data-cat="Random"><img src="acc2.jpg" alt=""><span class="cnt" data-cnt="Random">0 acc</span><span class="ct"><b>Acc Random</b><small>Thử vận may chỉ từ 20K</small></span></button>
-        <button class="cat" data-cat="Trắng TT"><img src="acc3.jpg" alt=""><span class="cnt" data-cnt="Trắng TT">0 acc</span><span class="ct"><b>Trắng thông tin</b><small>Đổi được SĐT, email</small></span></button>
-        <button class="cat" data-cat="Giá rẻ"><img src="acc4.jpg" alt=""><span class="cnt" data-cnt="Giá rẻ">0 acc</span><span class="ct"><b>Acc giá rẻ</b><small>Dưới 200K, nhiều tướng</small></span></button>
-      </div>
+      <div class="cats" id="catGrid"></div>
     </div>
 
     <div class="sec" id="list">
       <div class="sec-h"><div><h2>Tài khoản mới nhất</h2><p>Cập nhật liên tục mỗi ngày</p></div></div>
       <div class="filter">
         <div class="field"><i data-ic="search"></i><input class="inp" id="q" placeholder="Tìm theo mã acc, tên skin..." aria-label="Tìm kiếm"></div>
-        <select class="sel" id="fRank" aria-label="Lọc rank"><option value="">Tất cả rank</option><option>Kim Cương</option><option>Tinh Anh</option><option>Cao Thủ</option><option>Chiến Tướng</option><option>Thách Đấu</option></select>
+        <select class="sel" id="fRank" aria-label="Lọc rank"><option value="">Tất cả rank</option></select>
         <select class="sel" id="fPrice" aria-label="Lọc giá"><option value="">Tất cả giá</option><option value="0-200000">Dưới 200K</option><option value="200000-500000">200K - 500K</option><option value="500000-1000000">500K - 1 triệu</option><option value="1000000-99999999">Trên 1 triệu</option></select>
         <select class="sel" id="fSort" aria-label="Sắp xếp"><option value="new">Mới nhất</option><option value="asc">Giá tăng dần</option><option value="desc">Giá giảm dần</option><option value="skin">Nhiều skin nhất</option></select>
       </div>
@@ -521,7 +516,8 @@ IC.trash='<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>';
 const SB_URL="https://dnjtfyviroswhyiipgwb.supabase.co",SB_KEY="sb_publishable_hwC6nRO5z48_4yTMH6K69g_NpjTaos6";
 const sb=window.supabase?window.supabase.createClient(SB_URL,SB_KEY):null;
 const RANKS=['Kim Cương','Tinh Anh','Cao Thủ','Chiến Tướng','Thách Đấu'],CATS=['VIP','Random','Trắng TT','Giá rẻ'],GAME='Liên Quân Mobile';
-const S={me:null,members:null,accs:[],sec:{},buys:[],txns:[],cards:[],users:[],bank:{},cat:'',amt:50000,view:'home',hTab:'buy',aTab:'acc',edit:null,loaded:false};
+const DEF_CATS=[{id:'d1',name:'VIP',description:'Full skin SSS, rank Thách Đấu',image_url:'acc1.jpg'},{id:'d2',name:'Random',description:'Thử vận may chỉ từ 20K',image_url:'acc2.jpg'},{id:'d3',name:'Trắng TT',description:'Đổi được SĐT, email',image_url:'acc3.jpg'},{id:'d4',name:'Giá rẻ',description:'Dưới 200K, nhiều tướng',image_url:'acc4.jpg'}],DEF_RANKS=RANKS.map((n,i)=>({id:'r'+i,name:n}));
+const S={cats:DEF_CATS,ranks:DEF_RANKS,catsOk:false,catEdit:null,me:null,members:null,accs:[],sec:{},buys:[],txns:[],cards:[],users:[],bank:{},cat:'',amt:50000,view:'home',hTab:'buy',aTab:'acc',edit:null,loaded:false};
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const chk=r=>{if(r.error)throw r.error;return r.data};
 const isA=()=>!!S.me&&S.me.role==='admin';
@@ -544,8 +540,8 @@ async function refresh(soft){
   if(!sb){S.loaded=true;renderAll();return}
   try{
     const s=(await sb.auth.getSession()).data.session,uid=s&&s.user.id;
-    const [ra,rb,rc]=await Promise.all([sb.from('accounts').select('*').order('created_at',{ascending:false}),sb.from('settings').select('value').eq('key','bank').maybeSingle(),sb.rpc('member_count')]);
-    S.accs=ra.data||[];S.bank=(rb.data&&rb.data.value)||{};S.members=rc.error||rc.data==null?null:Number(rc.data);S.me=null;S.sec={};S.buys=[];S.txns=[];S.cards=[];S.users=[];
+    const [ra,rb,rc,rcat,rrk]=await Promise.all([sb.from('accounts').select('*').order('created_at',{ascending:false}),sb.from('settings').select('value').eq('key','bank').maybeSingle(),sb.rpc('member_count'),sb.from('categories').select('*').order('sort').order('created_at'),sb.from('ranks').select('*').order('sort').order('created_at')]);
+    S.catsOk=!rcat.error&&!rrk.error;S.cats=rcat.error?DEF_CATS:(rcat.data||[]);S.ranks=rrk.error?DEF_RANKS:(rrk.data||[]);S.accs=ra.data||[];S.bank=(rb.data&&rb.data.value)||{};S.members=rc.error||rc.data==null?null:Number(rc.data);S.me=null;S.sec={};S.buys=[];S.txns=[];S.cards=[];S.users=[];
     if(uid){
       const q=await Promise.all([
         sb.from('profiles').select('*').eq('id',uid).maybeSingle(),
@@ -561,7 +557,7 @@ async function refresh(soft){
   S.loaded=true;renderAll(soft);
 }
 function renderAll(soft){
-  renderHeader();renderStats();renderGrid();renderBank();
+  renderHeader();renderCats();renderStats();renderGrid();renderBank();
   if(S.view==='history')renderHist();
   if(S.view==='profile'&&!(soft&&typing()))renderProfile();
   if(S.view==='admin'&&!(soft&&typing()))renderAdmin();
@@ -602,9 +598,13 @@ const NAMES=['duy***99','minh***x','hoang***','tuan***vn','khanh***','long***pro
 $('#ticker').innerHTML=[0,1].map(()=>NAMES.map((n,i)=>`<span>${svg('cart')} <b>${n}</b> vừa mua acc <em>LQ${48210+i*37}</em> giá ${vnd((i+2)*120000)}</span>`).join('')).join('');
 
 /* ---------- danh sách acc ---------- */
-$('#chips').innerHTML=['Tất cả',...CATS].map((c,i)=>`<button class="chip ${i?'':'on'}" data-c="${i?c:''}">${c}</button>`).join('');
 $('#chips').onclick=e=>{const b=e.target.closest('.chip');if(!b)return;S.cat=b.dataset.c;$$('.chip').forEach(x=>x.classList.toggle('on',x===b));renderGrid()};
-$$('[data-cat]').forEach(b=>b.onclick=()=>{S.cat=b.dataset.cat;$$('.chip').forEach(x=>x.classList.toggle('on',x.dataset.c===S.cat));renderGrid();$('#list').scrollIntoView({behavior:'smooth'})});
+$('#catGrid').onclick=e=>{const b=e.target.closest('[data-cat]');if(!b)return;S.cat=b.dataset.cat;renderCats();renderGrid();$('#list').scrollIntoView({behavior:'smooth'})};
+function renderCats(){
+  $('#catGrid').innerHTML=S.cats.map(c=>`<button class="cat" data-cat="${esc(c.name)}">${c.image_url?`<img src="${esc(c.image_url)}" alt="">`:''}<span class="cnt" data-cnt="${esc(c.name)}">0 acc</span><span class="ct"><b>${esc(c.name)}</b><small>${esc(c.description)}</small></span></button>`).join('');
+  $('#chips').innerHTML=['Tất cả',...S.cats.map(c=>c.name)].map((c,i)=>`<button class="chip ${(i?c:'')===S.cat?'on':''}" data-c="${i?esc(c):''}">${esc(c)}</button>`).join('');
+  const fr=$('#fRank'),cur=fr.value;fr.innerHTML='<option value="">Tất cả rank</option>'+S.ranks.map(r=>`<option ${r.name===cur?'selected':''}>${esc(r.name)}</option>`).join('');
+}
 ['#q','#fRank','#fPrice','#fSort'].forEach(s=>$(s).addEventListener('input',renderGrid));
 function renderStats(){
   const L=S.accs.filter(isLive),on=L.filter(a=>a.status!=='sold').length;
@@ -648,7 +648,7 @@ function openAcc(id){
     <ul class="ul"><li>${svg('check')}Nhận tài khoản ngay sau thanh toán</li><li>${svg('check')}Bảo hành đăng nhập trọn đời</li><li>${svg('check')}Hỗ trợ đổi thông tin miễn phí</li></ul>
     ${sold&&sec!==undefined?`<b style="font-size:14px">Thông tin đăng nhập</b>${credBox(sec)}`:''}
     <div class="pr" style="flex-direction:row;align-items:center"><div>${pc?`<s>${vnd(a.old_price)}</s>`:''}<span class="p" style="font-size:24px">${vnd(a.price)}</span></div>${sold?'<span class="st-b st-er">Đã bán</span>':(isA()||(S.me&&a.seller_id===S.me.id))?'':`<button class="btn btn-gd" id="buyBtn">${svg('cart')}Mua ngay</button>`}</div>
-    ${isA()?`<div style="display:flex;gap:8px;margin-top:14px"><button class="btn btn-ol" id="mEdit">${svg('edit')}Sửa acc</button>${sold?'':`<button class="btn btn-ol" id="mDel" style="color:var(--rd)">${svg('trash')}Xóa</button>`}</div>`:''}
+    ${isA()?`<div style="display:flex;gap:8px;margin-top:14px"><button class="btn btn-ol" id="mEdit">${svg('edit')}Sửa acc</button><button class="btn btn-ol" id="mDel" style="color:var(--rd)">${svg('trash')}Xóa</button></div>`:''}
   </div></div>`);
   if($('#buyBtn'))$('#buyBtn').onclick=()=>buy(a);
   if($('#mEdit'))$('#mEdit').onclick=()=>{closeModal();S.edit=a.id;S.aTab='acc';go('admin')};
@@ -703,7 +703,7 @@ $('#hTabs').onclick=e=>{const b=e.target.closest('button');if(!b)return;S.hTab=b
 function renderHist(){
   const T=$('#hTbl'),A=isA(),t=S.hTab;
   const empty=(m,n=6)=>`<tr><td colspan="${n}" style="text-align:center;padding:40px;color:var(--mu)">${m}</td></tr>`;
-  if(t==='buy')T.innerHTML=`<thead><tr><th>Mã acc</th>${A?'<th>Người mua</th>':''}<th>Tên</th><th>Thông tin đăng nhập</th><th>Giá</th><th>Thời gian</th></tr></thead><tbody>${S.buys.length?S.buys.map(h=>{const s=S.sec[h.account_id];return `<tr><td><b>#${acode(h.account_id)}</b></td>${A?`<td>${esc(h.username)}</td>`:''}<td>${esc(h.account_title)}</td><td class="mono" style="white-space:pre-wrap;min-width:180px">${s===undefined?'-':esc(s)+' '+cp(s)}</td><td style="color:var(--gd);font-weight:700">${vnd(h.price)}</td><td style="color:var(--mu)">${dtf(h.created_at)}</td></tr>`}).join(''):empty('Bạn chưa mua tài khoản nào. <span class="lnk" data-go="home">Mua ngay</span>')}</tbody>`;
+  if(t==='buy')T.innerHTML=`<thead><tr><th>Mã acc</th>${A?'<th>Người mua</th>':''}<th>Tên</th><th>Thông tin đăng nhập</th><th>Giá</th><th>Thời gian</th></tr></thead><tbody>${S.buys.length?S.buys.map(h=>{const s=S.sec[h.account_id]!==undefined?S.sec[h.account_id]:h.secret;return `<tr><td><b>#${acode(h.account_id)}</b></td>${A?`<td>${esc(h.username)}</td>`:''}<td>${esc(h.account_title)}</td><td class="mono" style="white-space:pre-wrap;min-width:180px">${s==null?'-':esc(s)+' '+cp(s)}</td><td style="color:var(--gd);font-weight:700">${vnd(h.price)}</td><td style="color:var(--mu)">${dtf(h.created_at)}</td></tr>`}).join(''):empty('Bạn chưa mua tài khoản nào. <span class="lnk" data-go="home">Mua ngay</span>')}</tbody>`;
   if(t==='topup'){
     const L=[...S.txns.filter(x=>x.type!=='buy').map(x=>({code:x.id.slice(0,7).toUpperCase(),user:x.username,type:x.type==='card'?'Thẻ cào':'Chuyển khoản',amt:x.amount,st:'ok',time:x.created_at})),
       ...S.cards.filter(c=>c.status!=='approved').map(c=>({code:c.id.slice(0,7).toUpperCase(),user:c.username,type:'Thẻ '+c.telco,amt:c.amount,st:c.status==='rejected'?'er':'wt',time:c.created_at}))].sort((a,b)=>new Date(b.time)-new Date(a.time));
@@ -760,11 +760,11 @@ async function upload(path,blob){const r=await sb.storage.from('public-assets').
 const numOf=s=>Number(($(s).value||'').replace(/\D/g,''));
 function accForm(){
   const a=S.edit?(S.accs.find(x=>x.id===S.edit)||{}):{},m=n=>n?Number(n).toLocaleString('vi-VN'):'',v=k=>esc(a[k]);
-  const opt=(arr,cur,ph)=>`<option value="">${ph}</option>`+arr.map(x=>`<option ${cur===x?'selected':''}>${x}</option>`).join('');
+  const opt=(arr,cur,ph)=>{const L=!cur||arr.includes(cur)?arr:[...arr,cur];return `<option value="">${ph}</option>`+L.map(x=>`<option ${cur===x?'selected':''}>${esc(x)}</option>`).join('')};
   return `<div class="box"><h3>${svg(a.id?'edit':'plus')}${a.id?'Sửa acc #'+acode(a.id):'Đăng acc mới'}</h3>${isA()?'':'<div class="note" style="margin:0 0 14px"><span>Admin sẽ kiểm tra thông tin acc trước khi hiện lên web. Bạn chỉ sửa được acc khi đang chờ duyệt hoặc bị từ chối.</span></div>'}
   <div class="fg"><label class="lb">Tiêu đề acc</label><input class="inp" id="a_t" value="${v('title')}" placeholder="VD: Nakroth Lôi Quang Sứ + 3 skin SSS"></div>
-  <div class="fgrid"><div class="fg"><label class="lb">Danh mục</label><select class="sel" id="a_c">${opt(CATS,a.cat,'-- Chọn danh mục --')}</select></div>
-  <div class="fg"><label class="lb">Rank</label><select class="sel" id="a_r">${opt(RANKS,a.rank,'-- Chọn rank --')}</select></div>
+  <div class="fgrid"><div class="fg"><label class="lb">Danh mục</label><select class="sel" id="a_c">${opt(S.cats.map(c=>c.name),a.cat,'-- Chọn danh mục --')}</select></div>
+  <div class="fg"><label class="lb">Rank</label><select class="sel" id="a_r">${opt(S.ranks.map(r=>r.name),a.rank,'-- Chọn rank --')}</select></div>
   <div class="fg"><label class="lb">Giá bán (VNĐ)</label><input class="inp money" id="a_p" inputmode="numeric" value="${m(a.price)}" placeholder="0"></div>
   <div class="fg"><label class="lb">Giảm giá (%) - bỏ trống nếu không giảm</label><input class="inp" id="a_d" inputmode="numeric" maxlength="2" value="${pct(a)||''}" placeholder="VD: 20"></div>
   <div class="fg"><label class="lb">Số tướng</label><input class="inp" id="a_h" value="${v('heroes')}"></div>
@@ -778,14 +778,44 @@ function accForm(){
   <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-gd" data-act="save">${a.id?'Lưu thay đổi':'Đăng acc'}</button>${a.id?'<button class="btn btn-ol" data-act="cancel">Hủy sửa</button>':''}</div></div>`;
 }
 function pvDisc(){const el=$('#a_pv');if(!el)return;const p=numOf('#a_p'),d=Math.min(90,Number(($('#a_d').value||'').replace(/\D/g,'')));el.textContent=d>0&&p>0?`Giá gốc hiển thị: ${vnd(Math.round(p*100/(100-d)))} (giảm ${d}%)`:'Không giảm giá'}
+function catsAdmin(){
+  if(!S.catsOk)return '<div class="note"><i data-ic="info"></i><span>Chưa có bảng danh mục / rank trong Supabase. Hãy chạy file <b>supabase-update-3.sql</b> trong SQL Editor rồi tải lại trang.</span></div>';
+  const c=S.catEdit?(S.cats.find(x=>x.id===S.catEdit)||{}):{};
+  const cnt=n=>S.accs.filter(a=>a.cat===n).length,rcnt=n=>S.accs.filter(a=>a.rank===n).length;
+  return `<div class="box"><h3>${svg(c.id?'edit':'plus')}${c.id?'Sửa danh mục':'Thêm danh mục'}</h3>
+    <div class="fgrid"><div class="fg"><label class="lb">Tên danh mục</label><input class="inp" id="c_n" value="${esc(c.name)}" placeholder="VD: Acc VIP"></div><div class="fg"><label class="lb">Thứ tự (số nhỏ hiện trước)</label><input class="inp" id="c_s" inputmode="numeric" value="${c.id?c.sort:''}" placeholder="VD: 1"></div></div>
+    <div class="fg"><label class="lb">Mô tả ngắn</label><input class="inp" id="c_d" value="${esc(c.description)}" placeholder="VD: Full skin SSS, rank Thách Đấu"></div>
+    ${c.image_url?`<img src="${esc(c.image_url)}" alt="" style="width:200px;max-width:100%;height:120px;object-fit:cover;border-radius:12px;margin-bottom:10px;display:block">`:''}
+    <div class="fg"><label class="lb">Ảnh danh mục${c.id?' (bỏ trống để giữ ảnh cũ)':''}</label><input class="inp" id="c_f" type="file" accept="image/*"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-gd" data-act="catsave">${c.id?'Lưu thay đổi':'Thêm danh mục'}</button>${c.id?'<button class="btn btn-ol" data-act="catcancel">Hủy sửa</button>':''}</div></div>
+  <h3 style="margin:22px 0 10px">Danh sách danh mục</h3>
+  <div class="tbl-w"><table class="tbl"><thead><tr><th>Ảnh</th><th>Tên</th><th>Mô tả</th><th>Số acc</th><th></th></tr></thead><tbody>${S.cats.length?S.cats.map(x=>`<tr><td>${x.image_url?`<img src="${esc(x.image_url)}" alt="" style="width:64px;height:40px;object-fit:cover;border-radius:8px;display:block">`:'-'}</td><td><b>${esc(x.name)}</b></td><td style="white-space:normal;min-width:160px;color:var(--mu)">${esc(x.description)}</td><td>${cnt(x.name)}</td><td><button class="btn btn-ol sm" data-act="catedit" data-id="${x.id}">${svg('edit')}Sửa</button> <button class="btn btn-ol sm" style="color:var(--rd)" data-act="catdel" data-id="${x.id}">${svg('trash')}Xóa</button></td></tr>`).join(''):'<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--mu)">Chưa có danh mục nào</td></tr>'}</tbody></table></div>
+  <h3 style="margin:26px 0 10px">Rank</h3>
+  <div class="box" style="max-width:460px"><div class="fg" style="margin:0"><label class="lb">Thêm rank mới</label><div style="display:flex;gap:8px"><input class="inp" id="rk_n" placeholder="VD: Tinh Anh" style="margin:0"><button class="btn btn-gd" data-act="rkadd">Thêm</button></div></div></div>
+  <div class="tbl-w" style="margin-top:14px"><table class="tbl"><thead><tr><th>Rank</th><th>Số acc</th><th></th></tr></thead><tbody>${S.ranks.length?S.ranks.map(x=>`<tr><td><b>${esc(x.name)}</b></td><td>${rcnt(x.name)}</td><td><button class="btn btn-ol sm" data-act="rkedit" data-id="${x.id}">${svg('edit')}Sửa</button> <button class="btn btn-ol sm" style="color:var(--rd)" data-act="rkdel" data-id="${x.id}">${svg('trash')}Xóa</button></td></tr>`).join(''):'<tr><td colspan="3" style="text-align:center;padding:30px;color:var(--mu)">Chưa có rank nào</td></tr>'}</tbody></table></div>`;
+}
+async function saveCat(btn){
+  const name=$('#c_n').value.trim(),desc=$('#c_d').value.trim(),sort=Number(($('#c_s').value||'').replace(/\D/g,''))||0,file=$('#c_f').files[0],id=S.catEdit,old=id?S.cats.find(x=>x.id===id):null;
+  if(!name)return toast('Nhập tên danh mục','var(--rd)');
+  if(S.cats.some(x=>x.id!==id&&x.name.toLowerCase()===name.toLowerCase()))return toast('Tên danh mục đã tồn tại','var(--rd)');
+  const lbl=btn.textContent;btn.disabled=true;btn.textContent='Đang lưu…';
+  try{
+    const row={name:name,description:desc,sort:sort};
+    if(file)row.image_url=await upload('cat/'+rid()+'.jpg',await resize(file,800,'jpg'));
+    if(id){chk(await sb.from('categories').update(row).eq('id',id));if(old&&old.name!==name)chk(await sb.from('accounts').update({cat:name}).eq('cat',old.name))}
+    else chk(await sb.from('categories').insert(row));
+    S.catEdit=null;await refresh();toast(id?'Đã lưu danh mục':'Đã thêm danh mục','var(--ok)');
+  }catch(e){btn.disabled=false;btn.textContent=lbl;toast(viErr(e.message||String(e)),'var(--rd)')}
+}
 function renderAdmin(){
   if(!isA())return;
-  const T=[['acc',S.edit?'Sửa acc':'Đăng acc'],['list','Quản lý acc'],['pend','Duyệt acc'],['nap','Cộng tiền'],['card','Duyệt thẻ'],['users','Người dùng'],['qr','Cài QR']],pend=S.cards.filter(c=>c.status==='pending'),pendA=S.accs.filter(a=>a.approval==='pending'),t=S.aTab;
+  const T=[['acc',S.edit?'Sửa acc':'Đăng acc'],['list','Quản lý acc'],['pend','Duyệt acc'],['nap','Cộng tiền'],['card','Duyệt thẻ'],['users','Người dùng'],['cats','Danh mục & Rank'],['qr','Cài QR']],pend=S.cards.filter(c=>c.status==='pending'),pendA=S.accs.filter(a=>a.approval==='pending'),t=S.aTab;
   $('#aTabs').innerHTML=T.map(([k,l])=>`<button class="${t===k?'on':''}" data-at="${k}">${l}${k==='card'&&pend.length?` (${pend.length})`:''}${k==='pend'&&pendA.length?` (${pendA.length})`:''}</button>`).join('');
   const B=$('#aBody');
   if(t==='acc'){B.innerHTML=accForm();pvDisc()}
-  if(t==='list')B.innerHTML=`<div class="tbl-w"><table class="tbl"><thead><tr><th>Mã</th><th>Tiêu đề</th><th>Người đăng</th><th>Giá</th><th>Duyệt</th><th>Trạng thái</th><th></th></tr></thead><tbody>${S.accs.length?S.accs.map(a=>`<tr><td><b>#${acode(a.id)}</b></td><td style="white-space:normal;min-width:180px">${esc(a.title)}</td><td>${esc(a.seller_name||'-')}</td><td style="color:var(--gd);font-weight:700">${vnd(a.price)}</td><td>${apBadge(a)}</td><td><span class="st-b ${a.status==='sold'?'st-er':'st-ok'}">${a.status==='sold'?'Đã bán':'Còn'}</span></td><td><button class="btn btn-ol sm" data-act="edit" data-id="${a.id}">${svg('edit')}Sửa</button> ${a.status==='sold'?'':`<button class="btn btn-ol sm" style="color:var(--rd)" data-act="del" data-id="${a.id}">${svg('trash')}Xóa</button>`}</td></tr>`).join(''):'<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--mu)">Chưa có acc nào</td></tr>'}</tbody></table></div>`;
+  if(t==='list')B.innerHTML=`<div class="tbl-w"><table class="tbl"><thead><tr><th>Mã</th><th>Tiêu đề</th><th>Người đăng</th><th>Giá</th><th>Duyệt</th><th>Trạng thái</th><th></th></tr></thead><tbody>${S.accs.length?S.accs.map(a=>`<tr><td><b>#${acode(a.id)}</b></td><td style="white-space:normal;min-width:180px">${esc(a.title)}</td><td>${esc(a.seller_name||'-')}</td><td style="color:var(--gd);font-weight:700">${vnd(a.price)}</td><td>${apBadge(a)}</td><td><span class="st-b ${a.status==='sold'?'st-er':'st-ok'}">${a.status==='sold'?'Đã bán':'Còn'}</span></td><td><button class="btn btn-ol sm" data-act="edit" data-id="${a.id}">${svg('edit')}Sửa</button> <button class="btn btn-ol sm" style="color:var(--rd)" data-act="del" data-id="${a.id}">${svg('trash')}Xóa</button></td></tr>`).join(''):'<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--mu)">Chưa có acc nào</td></tr>'}</tbody></table></div>`;
   if(t==='pend')B.innerHTML=pendA.length?pendA.map(reviewCard).join(''):'<div class="empty">Không có acc nào đang chờ duyệt.</div>';
+  if(t==='cats')B.innerHTML=catsAdmin();
   if(t==='nap')B.innerHTML=`<div class="box" style="max-width:460px"><h3>${svg('wallet')}Cộng tiền khi nhận chuyển khoản</h3><div class="fg"><label class="lb">Nội dung CK của khách (hoặc tên hiển thị)</label><input class="inp mono" id="n_k" placeholder="VD: NAPK7M2QX"></div><div class="fg"><label class="lb">Số tiền đã nhận (VNĐ)</label><input class="inp money" id="n_m" inputmode="numeric" placeholder="0"></div><button class="btn btn-gd btn-block" data-act="credit">Xác nhận cộng tiền</button></div>`;
   if(t==='card')B.innerHTML=pend.length?`<div class="tbl-w"><table class="tbl"><thead><tr><th>Thời gian</th><th>Tài khoản</th><th>Thẻ</th><th>Seri</th><th>Mã thẻ</th><th></th></tr></thead><tbody>${pend.map(c=>`<tr><td style="color:var(--mu)">${dtf(c.created_at)}</td><td>${esc(c.username)}</td><td>${esc(c.telco)} ${vnd(c.amount)}</td><td class="mono">${esc(c.serial)} ${cp(c.serial)}</td><td class="mono">${esc(c.pin)} ${cp(c.pin)}</td><td><button class="btn btn-gd sm" data-act="ap" data-id="${c.id}">Duyệt</button> <button class="btn btn-ol sm" style="color:var(--rd)" data-act="rj" data-id="${c.id}">Từ chối</button></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Không có thẻ chờ duyệt.</div>';
   if(t==='users')B.innerHTML=`<div class="tbl-w"><table class="tbl"><thead><tr><th>Tên</th><th>Họ tên</th><th>SĐT</th><th>Email</th><th>Nội dung nạp</th><th>Số dư</th><th>Quyền</th><th></th></tr></thead><tbody>${S.users.map(u=>`<tr><td><b>${esc(u.username)}</b></td><td>${esc(u.full_name)}</td><td>${esc(u.phone)}</td><td>${esc(u.email)}</td><td class="mono">${esc(u.topup_code)} ${cp(u.topup_code)}</td><td style="color:var(--gd);font-weight:700">${vnd(u.balance)}</td><td>${u.role}</td><td>${u.role==='admin'?'':`<button class="btn btn-ol sm" style="color:var(--rd)" data-act="du" data-id="${u.id}">${svg('trash')}Xóa</button>`}</td></tr>`).join('')}</tbody></table></div>`;
@@ -824,8 +854,8 @@ async function saveAcc(btn){
   }catch(e){btn.disabled=false;btn.textContent=lbl;toast(viErr(e.message||String(e)),'var(--rd)')}
 }
 async function delAcc(id){
-  const a=S.accs.find(x=>x.id===id);if(!a)return;if(a.status==='sold')return toast('Không thể xóa acc đã bán (để giữ lịch sử của người mua)','var(--rd)');
-  if(!confirm('Xóa acc #'+acode(id)+'?'))return;
+  const a=S.accs.find(x=>x.id===id);if(!a)return;if(a.status==='sold'&&!isA())return toast('Chỉ admin mới xóa được acc đã bán','var(--rd)');
+  if(!confirm(a.status==='sold'?'Acc #'+acode(id)+' đã bán. Người mua vẫn xem lại được thông tin đã mua. Xóa acc này?':'Xóa acc #'+acode(id)+'?'))return;
   try{const r=chk(await sb.from('accounts').delete().eq('id',id).select('id'));if(!r||!r.length)throw new Error('Không xóa được acc này (acc đã duyệt chỉ admin mới xóa được)');await refresh();toast('Đã xóa acc','var(--ok)')}catch(e){toast(viErr(e.message||String(e)),'var(--rd)')}
 }
 const actHandler=async e=>{
@@ -836,6 +866,23 @@ const actHandler=async e=>{
     if(act==='cancel'){S.edit=null;return S.view==='sell'?renderSell():renderAdmin()}
     if(act==='edit'){S.edit=id;S.aTab='acc';if(S.view==='sell')renderSell();else renderAdmin();return window.scrollTo({top:0,behavior:'smooth'})}
     if(act==='del')return delAcc(id);
+    if(act==='catsave')return saveCat(b);
+    if(act==='catcancel'){S.catEdit=null;return renderAdmin()}
+    if(act==='catedit'){S.catEdit=id;renderAdmin();return window.scrollTo({top:0,behavior:'smooth'})}
+    if(act==='catdel'){const c=S.cats.find(x=>x.id===id);if(!c)return;const n=S.accs.filter(a=>a.cat===c.name).length;
+      if(!confirm('Xóa danh mục "'+c.name+'"?'+(n?' '+n+' acc thuộc danh mục này sẽ thành chưa phân loại.':'')))return;
+      if(n)chk(await sb.from('accounts').update({cat:''}).eq('cat',c.name));
+      chk(await sb.from('categories').delete().eq('id',id));if(S.cat===c.name)S.cat='';S.catEdit=null;await refresh();toast('Đã xóa danh mục','var(--ok)');return}
+    if(act==='rkadd'){const n=$('#rk_n').value.trim();if(!n)return toast('Nhập tên rank','var(--rd)');
+      if(S.ranks.some(x=>x.name.toLowerCase()===n.toLowerCase()))return toast('Rank đã tồn tại','var(--rd)');
+      chk(await sb.from('ranks').insert({name:n,sort:S.ranks.length+1}));await refresh();toast('Đã thêm rank','var(--ok)');return}
+    if(act==='rkedit'){const r=S.ranks.find(x=>x.id===id);if(!r)return;const n=(prompt('Tên rank mới:',r.name)||'').trim();if(!n||n===r.name)return;
+      if(S.ranks.some(x=>x.id!==id&&x.name.toLowerCase()===n.toLowerCase()))return toast('Rank đã tồn tại','var(--rd)');
+      chk(await sb.from('ranks').update({name:n}).eq('id',id));chk(await sb.from('accounts').update({rank:n}).eq('rank',r.name));await refresh();toast('Đã đổi tên rank','var(--ok)');return}
+    if(act==='rkdel'){const r=S.ranks.find(x=>x.id===id);if(!r)return;const n=S.accs.filter(a=>a.rank===r.name).length;
+      if(!confirm('Xóa rank "'+r.name+'"?'+(n?' '+n+' acc thuộc rank này sẽ thành chưa chọn rank.':'')))return;
+      if(n)chk(await sb.from('accounts').update({rank:''}).eq('rank',r.name));
+      chk(await sb.from('ranks').delete().eq('id',id));await refresh();toast('Đã xóa rank','var(--ok)');return}
     if(act==='apv'){chk(await sb.from('accounts').update({approval:'approved',reject_reason:''}).eq('id',id));await refresh();toast('Đã duyệt, acc đã hiện trên web','var(--ok)');return}
     if(act==='rej'){const r=prompt('Lý do từ chối (người đăng sẽ thấy):');if(r===null)return;chk(await sb.from('accounts').update({approval:'rejected',reject_reason:r.trim()}).eq('id',id));await refresh();toast('Đã từ chối acc','var(--ok)');return}
     if(act==='credit'){const k=$('#n_k').value.trim(),n=numOf('#n_m');if(!k)return toast('Nhập nội dung chuyển khoản','var(--rd)');if(!(n>0))return toast('Nhập số tiền hợp lệ','var(--rd)');
@@ -856,7 +903,7 @@ document.addEventListener('input',e=>{
 });
 
 /* ---------- khởi động ---------- */
-paintIcons();renderAmts();go('home');renderGrid();renderBank();
+paintIcons();renderAmts();go('home');renderCats();renderStats();renderGrid();renderBank();
 if(sb){
   sb.auth.onAuthStateChange(ev=>{setTimeout(async()=>{await refresh();if(ev==='PASSWORD_RECOVERY')openRecover()},0)});
   let tm;const live=()=>{clearTimeout(tm);tm=setTimeout(()=>refresh(true),500)};
