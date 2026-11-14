@@ -295,6 +295,14 @@ img{max-width:100%}
 .mgnav{display:flex;justify-content:center;align-items:center;gap:16px;margin:8px 0 12px}
 .mgh{margin:18px 0 8px;font-size:13px;color:var(--mu);letter-spacing:.5px;text-transform:uppercase}
 .mgex{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px}.mgex img{height:56px;border-radius:8px;border:1px solid var(--bd)}
+.mgoptH{display:flex;justify-content:space-between;align-items:center;margin:16px 0 8px}.mgoptH .mgh{margin:0}
+.opt{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border:1px solid var(--bd);border-radius:12px;background:var(--bg2);margin-bottom:10px}
+.opt b{display:block;font-size:14px}.opt small{color:var(--mu);font-size:12px;line-height:1.4;display:block;margin-top:2px}
+.sw{position:relative;width:50px;height:28px;flex:none}.sw input{opacity:0;position:absolute;inset:0;width:100%;height:100%;margin:0;cursor:pointer;z-index:2}
+.sw i{position:absolute;inset:0;border-radius:20px;background:var(--bd);transition:.2s}
+.sw i:after{content:'';position:absolute;left:3px;top:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:.2s}
+.sw input:checked+i{background:var(--gd)}.sw input:checked+i:after{transform:translateX(22px)}
+.mgdet{margin:0 0 12px;border:1px solid var(--bd);border-radius:12px;padding:10px 14px;background:var(--bg2)}.mgdet summary{cursor:pointer;font-weight:600;font-size:14px;margin-bottom:8px}
 .mgacts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.mgacts .btn{flex:1;min-width:140px}
 </style>
 </head>
@@ -943,7 +951,7 @@ document.addEventListener('input',e=>{
 /* ---------- ghép ảnh acc ---------- */
 const MF="'Be Vietnam Pro','Segoe UI',Roboto,Arial,sans-serif",MGOLD='rgba(245,185,66,.95)';
 const mc=(v,a,b)=>Math.min(b,Math.max(a,v));
-const newMerge=()=>({step:1,items:[],mode:'sync',sync:{x:0,y:0,w:1,h:1},cur:0,adv:false,cfg:{tpl:1,perRow:8,rowGap:36,heroes:'',skins:'',giayS:'',giayTS:'',theDoiTen:'',maAcc:''},ex:{kills:[]},out:null});
+const newMerge=()=>({step:1,items:[],mode:'sync',sync:{x:0,y:0,w:1,h:1},cur:0,adv:false,optOpen:true,opt:{bg:true,stats:true,border:false,title:false},cfg:{tpl:1,perRow1:7,perRow2:8,rowGap:36,heroes:'',skins:'',giayS:'',giayTS:'',theDoiTen:'',maAcc:'',title:'',rx:30,rw:69,iy:3,ih:21,ry:26,rh:61},ex:{kills:[]},out:null});
 function mgLoad(file){return new Promise((res,rej)=>{const url=URL.createObjectURL(file),im=new Image();
   im.onload=()=>{const r=Math.min(1,1800/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(im.width*r));c.height=Math.max(1,Math.round(im.height*r));c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(url);res(c)};
   im.onerror=()=>{URL.revokeObjectURL(url);rej(new Error('Ảnh không hợp lệ'))};im.src=url})}
@@ -957,44 +965,73 @@ function mgPh(w,h,hue,label){const c=document.createElement('canvas');c.width=w;
 /* vẽ ảnh ghép */
 async function mgDraw(M,sample){
   if(document.fonts&&document.fonts.ready)await document.fonts.ready;
-  const cf=sample?{...M.cfg,heroes:M.cfg.heroes||'112',skins:M.cfg.skins||'354'}:M.cfg,W=1600,P=28,GX=8,GAP=16,tpl=Number(cf.tpl)||1,inner=W-2*P;
-  const cards=sample?Array.from({length:11},(_,i)=>mgPh(300,440,(i*37)%360,'Tướng '+(i+1))):M.items.map(it=>mgCrop(M,it));
-  const ex=sample?{kills:[mgPh(520,110,200,'Thông báo hạ'),mgPh(520,110,330,'Thông báo hạ'),mgPh(520,110,20,'Thông báo hạ')],avatar:mgPh(200,200,260,'Avatar')}:M.ex;
-  const n=mc(Math.round(Number(cf.perRow))||8,1,12),gy=mc(Number(cf.rowGap)||0,0,120);
-  const asp=cards.length?mc(cards[0].width/cards[0].height,.4,2.5):.7,cw=(inner-(n-1)*GX)/n,ch=cw/asp,rows=Math.ceil(cards.length/n),gridH=rows?rows*ch+(rows-1)*gy:0;
-  const kills=ex.kills||[];let kH=0;
-  if(kills.length){const kw=(inner-24-(kills.length-1)*16)/kills.length;kH=Math.min(150,Math.max(...kills.map(k=>kw*k.height/k.width)))+24}
-  const has=v=>v!==''&&v!=null,stats=[['Tướng',cf.heroes],['Trang phục',cf.skins]].filter(s=>has(s[1])),small=[['Giấy S',cf.giayS],['Giấy Tuyệt Sắc',cf.giayTS],['Thẻ đổi tên',cf.theDoiTen],['Mã ACC',cf.maAcc]].filter(s=>has(s[1]));
-  const hasInfo=!!(stats.length||small.length||ex.avatar||ex.win||ex.power),iH=hasInfo?220:0;
-  const pH=tpl===1&&ex.profile?Math.min(520,inner*ex.profile.height/ex.profile.width):0;
-  const parts=[kH,iH,pH,gridH].filter(h=>h>0),contentH=parts.reduce((a,b)=>a+b,0)+Math.max(0,parts.length-1)*GAP;
-  if(!cards.length&&!parts.length)throw new Error('Chưa có ảnh để ghép');
-  let H=contentH+2*P,bg=null;
-  if(tpl===2&&ex.profile){bg=ex.profile;H=Math.max(H,Math.round(W*bg.height/bg.width))}
-  if(H>8000)throw new Error('Ảnh ghép quá dài. Hãy tăng "Số ảnh trên 1 hàng" hoặc bớt ảnh.');
-  const cv=document.createElement('canvas');cv.width=W;cv.height=Math.round(H);const c=cv.getContext('2d');
-  if(bg)mgCover(c,bg,0,0,W,H);else{const g=c.createLinearGradient(0,0,W,H);g.addColorStop(0,'#26378a');g.addColorStop(1,'#131a4a');c.fillStyle=g;c.fillRect(0,0,W,H)}
-  let y=bg?H-P-contentH:P;
-  if(bg){c.fillStyle='rgba(8,12,40,.62)';mgRR(c,P/2,y-P/2,W-P,contentH+P,18);c.fill()}
-  if(kH){c.strokeStyle='#fff';c.lineWidth=4;mgRR(c,P,y,inner,kH,6);c.stroke();const kw=(inner-24-(kills.length-1)*16)/kills.length;kills.forEach((k,i)=>mgContain(c,k,P+12+i*(kw+16),y+12,kw,kH-24));y+=kH+GAP}
-  if(iH){
-    let x=P;
-    if(ex.avatar){c.save();mgRR(c,x,y,iH,iH,12);c.clip();mgCover(c,ex.avatar,x,y,iH,iH);c.restore();c.strokeStyle=MGOLD;c.lineWidth=3;mgRR(c,x,y,iH,iH,12);c.stroke();x+=iH+16}
-    if(stats.length||small.length){
-      const tw=stats.length?150:0,sw=small.length?340:0,pw=tw+sw+(tw&&sw?12:0)+24;
-      c.fillStyle='rgba(255,255,255,.08)';mgRR(c,x,y,pw,iH,12);c.fill();c.strokeStyle=MGOLD;c.lineWidth=3;c.stroke();
-      let tx=x+12;
-      if(stats.length){const th=(iH-24-(stats.length-1)*10)/stats.length;c.textAlign='center';stats.forEach((s,i)=>{const ty=y+12+i*(th+10);c.fillStyle='rgba(70,90,200,.85)';mgRR(c,tx,ty,tw,th,8);c.fill();c.fillStyle='#fff';c.font='600 24px '+MF;c.fillText(s[0],tx+tw/2,ty+th*.36);c.font='800 '+Math.round(Math.min(54,th*.48))+'px '+MF;c.fillText(String(s[1]),tx+tw/2,ty+th*.84,tw-12)});tx+=tw+12}
-      if(small.length){c.textAlign='left';const lh=(iH-24)/small.length;small.forEach((s,i)=>{const ty=y+12+lh*(i+.68);c.font='600 26px '+MF;c.fillStyle='#cfd8ff';const lbl=s[0]+': ',lw=c.measureText(lbl).width;c.fillText(lbl,tx+4,ty);c.font='800 30px '+MF;c.fillStyle='#ffd36b';c.fillText(String(s[1]),tx+4+lw,ty,Math.max(40,sw-8-lw))})}
-      c.textAlign='left';x+=pw+16;
-    }
-    const imgs=[ex.win,ex.power].filter(Boolean),rem=W-P-x;
-    if(imgs.length&&rem>80){const sl=(rem-(imgs.length-1)*12)/imgs.length;imgs.forEach((m,i)=>{const ix=x+i*(sl+12);c.save();mgRR(c,ix,y,sl,iH,10);c.clip();c.fillStyle='rgba(0,0,0,.25)';c.fillRect(ix,y,sl,iH);mgContain(c,m,ix,y,sl,iH);c.restore()})}
-    y+=iH+GAP;
+  const o=M.opt,tpl=Number(M.cfg.tpl)||1,W=1600,P=28,GX=8,GAP=16,inner=W-2*P;
+  const cf=sample?{...M.cfg,heroes:M.cfg.heroes||'112',skins:M.cfg.skins||'354',title:M.cfg.title||'TÀI KHOẢN LIÊN QUÂN'}:M.cfg;
+  const cards=sample?Array.from({length:16},(_,i)=>mgPh(300,440,(i*23)%360,'skin')):M.items.map(it=>mgCrop(M,it));
+  const ex=sample?{kills:[1,2,3].map(()=>mgPh(520,110,200,'thông báo hạ')),avatar:mgPh(200,200,260,'avatar'),win:mgPh(600,300,0,'ảnh tỉ lệ thắng'),...(tpl===2?{profile:mgPh(1080,640,225,'profile')}:{})}:M.ex;
+  const has=v=>v!==''&&v!=null,N=(v,d)=>{const x=Number(v);return v===''||v==null||isNaN(x)?d:x};
+  const stats=o.stats?[['Số tướng',cf.heroes],['Số skin',cf.skins]].filter(s=>has(s[1])):[];
+  const extra=[['Giấy S',cf.giayS],['Giấy Tuyệt Sắc',cf.giayTS],['Thẻ đổi tên',cf.theDoiTen],['Mã ACC',cf.maAcc]].filter(s=>has(s[1]));
+  const TH=o.title?120:0,IB=extra.length?76:0,gy=mc(N(cf.rowGap,36),0,120),kills=ex.kills||[];
+  const asp=cards.length?mc(cards[0].width/cards[0].height,.4,2.5):.7;
+  const drawCard=(c,k,x,y,w,h)=>{c.save();mgRR(c,x,y,w,h,8);c.clip();mgCover(c,k,x,y,w,h);c.restore();c.strokeStyle=MGOLD;c.lineWidth=3;mgRR(c,x,y,w,h,8);c.stroke()};
+  const tile=(c,x,y,w,h,l,v)=>{c.fillStyle='rgba(70,90,200,.85)';mgRR(c,x,y,w,h,8);c.fill();c.strokeStyle='rgba(255,255,255,.55)';c.lineWidth=2;c.stroke();c.fillStyle='#fff';c.textAlign='center';c.font='600 22px '+MF;c.fillText(l,x+w/2,y+h*.38,w-10);c.font='800 '+Math.round(Math.min(54,h*.46))+'px '+MF;c.fillText(String(v),x+w/2,y+h*.84,w-10);c.textAlign='left'};
+  const finish=(c,H,yInfo)=>{
+    if(TH){const g=c.createLinearGradient(0,0,W,0);g.addColorStop(0,'#f5b942');g.addColorStop(.5,'#fff3c4');g.addColorStop(1,'#f5b942');c.fillStyle=g;c.textAlign='center';c.font='800 64px '+MF;c.fillText(cf.title||'TÀI KHOẢN LIÊN QUÂN',W/2,TH*.64,inner);c.textAlign='left'}
+    if(IB){c.fillStyle='rgba(8,12,40,.6)';mgRR(c,P,yInfo,inner,IB,14);c.fill();c.strokeStyle=MGOLD;c.lineWidth=3;c.stroke();c.fillStyle='#ffd36b';c.textAlign='center';c.font='800 32px '+MF;c.fillText(extra.map(s=>s[0]+': '+s[1]).join('   •   '),W/2,yInfo+IB*.66,inner-40);c.textAlign='left'}
+    if(o.border){const g=c.createLinearGradient(0,0,W,H);g.addColorStop(0,'#f5b942');g.addColorStop(.35,'#fff8dc');g.addColorStop(.7,'#f5b942');g.addColorStop(1,'#ffffff');c.strokeStyle=g;c.lineWidth=12;mgRR(c,6,6,W-12,H-12,20);c.stroke()}
+  };
+  const bgFill=(c,H)=>{const g=c.createLinearGradient(0,0,W,H);g.addColorStop(0,'#26378a');g.addColorStop(1,'#131a4a');c.fillStyle=g;c.fillRect(0,0,W,H)};
+  const frame=(c,x,y,w,h)=>{c.fillStyle='rgba(8,12,40,.35)';mgRR(c,x,y,w,h,6);c.fill();c.strokeStyle='rgba(255,255,255,.85)';c.lineWidth=2.5;c.stroke()};
+
+  if(tpl===1){
+    /* MẪU 1: thông báo hạ → avatar + skin → [số tướng/skin + tỉ lệ thắng] + skin → các hàng skin */
+    const n=mc(Math.round(N(cf.perRow1,7)),4,10),cw=(inner-(n-1)*GX)/n,ch=cw/asp,hasPanel=!!(stats.length||ex.win||ex.power),span=Math.max(2,n-3);
+    const rows=[];let idx=0,left=cards.length;
+    if(kills.length){const kw=(inner-(kills.length-1)*GX*2)/kills.length;rows.push({t:'k',kw:kw,h:Math.min(150,Math.max(...kills.map(k=>(kw-20)*k.height/k.width)))+20})}
+    if(ex.avatar||left>0){const cnt=Math.min(ex.avatar?n-1:n,left);rows.push({t:'b',h:ch,from:idx,cnt:cnt});idx+=cnt;left-=cnt}
+    if(hasPanel||left>0){const cnt=Math.min(hasPanel?n-span:n,left);rows.push({t:'c',h:ch,from:idx,cnt:cnt});idx+=cnt;left-=cnt}
+    while(left>0){const cnt=Math.min(n,left);rows.push({t:'d',h:ch,from:idx,cnt:cnt});idx+=cnt;left-=cnt}
+    if(!rows.length)throw new Error('Chưa có ảnh để ghép');
+    const body=rows.reduce((a,r)=>a+r.h,0)+(rows.length-1)*gy,H=Math.round(P+TH+body+(IB?GAP+IB:0)+P);
+    if(H>8000)throw new Error('Ảnh ghép quá dài. Hãy tăng "Số ảnh trên 1 hàng" hoặc bớt ảnh.');
+    const cv=document.createElement('canvas');cv.width=W;cv.height=H;const c=cv.getContext('2d');
+    if(o.bg)bgFill(c,H);
+    let y=P+TH;
+    rows.forEach(r=>{
+      if(r.t==='k')kills.forEach((k,i)=>{const x=P+i*(r.kw+GX*2);frame(c,x,y,r.kw,r.h);mgContain(c,k,x+10,y+10,r.kw-20,r.h-20)});
+      else{
+        let off=0;
+        if(r.t==='b'&&ex.avatar){const s=Math.min(cw,ch)*.9,ax=P+(cw-s)/2,ay=y+(ch-s)/2;c.save();mgRR(c,ax,ay,s,s,10);c.clip();mgCover(c,ex.avatar,ax,ay,s,s);c.restore();c.strokeStyle=MGOLD;c.lineWidth=3;mgRR(c,ax,ay,s,s,10);c.stroke();off=1}
+        if(r.t==='c'&&hasPanel){
+          const pw=span*cw+(span-1)*GX;c.fillStyle='rgba(255,255,255,.06)';mgRR(c,P,y,pw,ch,10);c.fill();c.strokeStyle=MGOLD;c.lineWidth=3;c.stroke();
+          let ix=P+12;
+          if(stats.length){const tw=Math.min(cw*.95,pw*.3),th=(ch-24-(stats.length-1)*10)/stats.length;stats.forEach((s,i)=>tile(c,P+12,y+12+i*(th+10),tw,th,s[0],s[1]));ix+=tw+12}
+          const imgs=[ex.win,ex.power].filter(Boolean),iw=P+pw-12-ix;
+          if(imgs.length&&iw>40){const sl=(iw-(imgs.length-1)*10)/imgs.length;imgs.forEach((m,i)=>{const x=ix+i*(sl+10);c.save();mgRR(c,x,y+12,sl,ch-24,8);c.clip();c.fillStyle='rgba(0,0,0,.25)';c.fillRect(x,y+12,sl,ch-24);mgContain(c,m,x,y+12,sl,ch-24);c.restore()})}
+          off=span;
+        }
+        for(let j=0;j<r.cnt;j++)drawCard(c,cards[r.from+j],P+(off+j)*(cw+GX),y,cw,ch);
+      }
+      y+=r.h+gy;
+    });
+    finish(c,H,P+TH+body+GAP);return cv;
   }
-  if(pH){c.save();mgRR(c,P,y,inner,pH,12);c.clip();mgContain(c,ex.profile,P,y,inner,pH);c.restore();y+=pH+GAP}
-  cards.forEach((k,i)=>{const rw=Math.floor(i/n),cnt=Math.min(n,cards.length-rw*n),x=P+(n-cnt)*(cw+GX)/2+(i%n)*(cw+GX),yy=y+rw*(ch+gy);c.save();mgRR(c,x,yy,cw,ch,8);c.clip();mgCover(c,k,x,yy,cw,ch);c.restore();c.strokeStyle=MGOLD;c.lineWidth=3;mgRR(c,x,yy,cw,ch,8);c.stroke()});
-  return cv;
+
+  /* MẪU 2: ảnh Profile làm nền; khung vật phẩm (thông báo hạ) ở trên, khung hiện skin ở dưới */
+  const prof=ex.profile,bw=W,bh=prof?Math.round(W*prof.height/prof.width):1000,H=Math.round(TH+bh+(IB?GAP+IB:0));
+  if(H>8000)throw new Error('Ảnh ghép quá dài.');
+  const cv=document.createElement('canvas');cv.width=W;cv.height=H;const c=cv.getContext('2d');
+  if(o.bg){bgFill(c,H);if(prof)mgCover(c,prof,0,TH,bw,bh)}
+  const rx=mc(N(cf.rx,30),0,95)/100*W,rw=mc(N(cf.rw,69),5,100-N(cf.rx,30))/100*W;
+  const iy=TH+mc(N(cf.iy,3),0,95)/100*bh,ih=mc(N(cf.ih,21),3,60)/100*bh,sy=TH+mc(N(cf.ry,26),0,95)/100*bh,sh=mc(N(cf.rh,61),5,95)/100*bh;
+  if(kills.length){const kw=(rw-(kills.length-1)*GX*2)/kills.length;kills.forEach((k,i)=>mgContain(c,k,rx+i*(kw+GX*2),iy,kw,ih))}
+  if(cards.length){
+    const n=mc(Math.round(N(cf.perRow2,8)),3,12),gx=6;let cw=(rw-(n-1)*gx)/n,ch=cw/asp,g2=gy;const rws=Math.ceil(cards.length/n),need=rws*ch+(rws-1)*g2;
+    if(need>sh){const f=sh/need;cw*=f;ch*=f;g2*=f}
+    cards.forEach((k,i)=>{const rw2=Math.floor(i/n),cnt=Math.min(n,cards.length-rw2*n),rowW=cnt*cw+(cnt-1)*gx;drawCard(c,k,rx+(rw-rowW)/2+(i%n)*(cw+gx),sy+rw2*(ch+g2),cw,ch)});
+  }
+  finish(c,H,TH+bh+GAP);return cv;
 }
 
 /* các bước */
@@ -1023,15 +1060,19 @@ function mgStep2(){
   <div class="mgfoot"><button class="btn btn-ol" data-m="back">‹ Quay lại</button><button class="btn btn-gd" data-m="next">Tiếp tục: cấu hình ›</button></div></div>`;
 }
 function mgStep3(){
-  const M=S.m,c=M.cfg,ex=M.ex;
+  const M=S.m,c=M.cfg,ex=M.ex,o=M.opt,t2=c.tpl==2;
   const inp=(k,l,ph,t)=>`<div class="fg"><label class="lb">${l}</label><input class="inp" data-k="${k}" ${t?`type="${t}" inputmode="numeric"`:''} value="${esc(c[k])}" placeholder="${ph||''}"></div>`;
   const up=(k,l,multi)=>{const has=multi?ex[k].length:ex[k];return `<div class="fg"><label class="lb">${l}</label>${has?`<div class="mgex">${(multi?ex[k]:[ex[k]]).map(x=>`<img src="${mgUrl(x,120)}" alt="">`).join('')}<button class="btn btn-ol sm" data-m="rmx" data-v="${k}">Xóa</button></div>`:''}<input class="inp" type="file" accept="image/*" data-x="${k}" ${multi?'multiple':''}></div>`};
+  const sw=(k,l,d)=>`<div class="opt"><div><b>${l}</b><small>${d}</small></div><label class="sw"><input type="checkbox" data-o="${k}" ${o[k]?'checked':''}><i></i></label></div>`;
   return `<div class="box mg"><h3>${svg('star')}Cấu hình ghép</h3>
-  <div class="mgmode"><button class="btn ${c.tpl==1?'btn-gd':'btn-ol'}" data-m="tpl" data-v="1">Mẫu ảnh 1</button><button class="btn ${c.tpl==2?'btn-gd':'btn-ol'}" data-m="tpl" data-v="2">Mẫu ảnh 2</button><button class="btn btn-ol" data-m="sample">🖼 Xem mẫu</button></div>
-  <p class="mgtip">${c.tpl==1?'Mẫu 1: nền xanh, thông tin ở trên, các ảnh tướng xếp lưới bên dưới.':'Mẫu 2: dùng ảnh <b>Profile</b> (tải ở phần nâng cao) làm nền, các ảnh tướng xếp phía dưới.'}</p>
-  <div class="fgrid">${inp('perRow','Số ảnh trên 1 hàng','8','number')}${inp('rowGap','Độ rộng giữa 2 hàng (px)','36','number')}${inp('heroes','Tướng sở hữu','VD: 112')}${inp('skins','Skin sở hữu','VD: 354')}</div>
+  <div class="mgmode"><button class="btn ${t2?'btn-ol':'btn-gd'}" data-m="tpl" data-v="1">Mẫu ảnh 1</button><button class="btn ${t2?'btn-gd':'btn-ol'}" data-m="tpl" data-v="2">Mẫu ảnh 2</button><button class="btn btn-ol" data-m="sample">🖼 Xem mẫu</button></div>
+  <p class="mgtip">${t2?'Mẫu 2: ảnh <b>Profile</b> (tải ở phần nâng cao) làm nền. Thông báo hạ nằm ở khung vật phẩm phía trên, các skin nằm ở khung hiện skin bên dưới.':'Mẫu 1: hàng thông báo hạ → avatar + skin → khung số tướng/số skin + ảnh tỉ lệ thắng + 3 skin → các hàng skin.'}</p>
+  <div class="fgrid">${inp(t2?'perRow2':'perRow1','Số ảnh trên 1 hàng',t2?'8':'7','number')}${inp('rowGap','Độ rộng giữa 2 hàng (px)','36','number')}${inp('heroes','Tướng sở hữu','VD: 112')}${inp('skins','Skin sở hữu','VD: 354')}</div>
+  ${t2?`<details class="mgdet"><summary>Chỉnh vị trí khung trên ảnh Profile</summary><div class="fgrid">${inp('rx','Khung cách trái (%)','30','number')}${inp('rw','Khung rộng (%)','69','number')}${inp('iy','Khung vật phẩm: cách trên (%)','3','number')}${inp('ih','Khung vật phẩm: cao (%)','21','number')}${inp('ry','Khung skin: cách trên (%)','26','number')}${inp('rh','Khung skin: cao (%)','61','number')}</div></details>`:''}
+  <div class="mgoptH"><h4 class="mgh">Tùy chọn hiển thị</h4><button class="btn btn-ol sm" data-m="optt">${M.optOpen?'Thu gọn ▲':'Mở rộng ▼'}</button></div>
+  ${M.optOpen?sw('bg','Hiển thị màu nền','Bật/tắt lớp nền màu xanh phía sau ảnh đã được ghép')+sw('stats','Thống kê tướng/skin','Hiển thị tổng số lượng tướng và trang phục mà bạn sở hữu (Mẫu 1)')+sw('border','Hiển thị viền ảnh','Hiển thị đường viền màu gradient vàng trắng bao quanh ảnh ghép')+sw('title','Hiển thị tiêu đề','Thêm tiêu đề tùy chỉnh ở phía trên bức ảnh')+(o.title?inp('title','Tiêu đề','TÀI KHOẢN LIÊN QUÂN'):''):''}
   <button class="btn btn-ol btn-block" data-m="adv">${M.adv?'Thu gọn ▲':'+ Thêm nút bấm, top tướng, bậc EVO ▼'}</button>
-  ${M.adv?`<h4 class="mgh">Các tính năng nâng cao (không bắt buộc)</h4>${up('win','Tỷ lệ thắng')}${up('power','Ảnh lực chiến và top tướng')}<div class="fgrid">${inp('giayTS','Số Giấy Tuyệt Sắc','0')}${inp('theDoiTen','Thẻ đổi tên','0')}${inp('giayS','Số Giấy S','0')}${inp('maAcc','Mã số ACC','Nhập mã số ACC...')}</div>${up('avatar','Avatar')}${up('profile','Profile')}${up('kills','Thông báo hạ gục (tối đa 3 ảnh)',true)}`:''}
+  ${M.adv?`<h4 class="mgh">Các tính năng nâng cao (không bắt buộc)</h4>${up('win','Ảnh tỉ lệ thắng (Mẫu 1)')}${up('power','Ảnh lực chiến và top tướng (Mẫu 1)')}<div class="fgrid">${inp('giayTS','Số Giấy Tuyệt Sắc','0')}${inp('theDoiTen','Thẻ đổi tên','0')}${inp('giayS','Số Giấy S','0')}${inp('maAcc','Mã số ACC','Nhập mã số ACC...')}</div>${up('avatar','Avatar (Mẫu 1)')}${up('profile','Profile (làm nền Mẫu 2)')}${up('kills','Thông báo hạ (tối đa 3 ảnh)',true)}`:''}
   <div class="mgfoot"><button class="btn btn-ol" data-m="back">‹ Quay lại</button><button class="btn btn-gd" data-m="next">Ghép ảnh ›</button></div></div>`;
 }
 function mgStep4(){
@@ -1064,7 +1105,9 @@ async function mgEx(k,fl){
 }
 function mgUse(){
   const M=S.m;if(!M.out)return;
-  M.out.toBlob(b=>{if(!b)return toast('Không tạo được ảnh','var(--rd)');S.pendingImg=new File([b],'acc-ghep.jpg',{type:'image/jpeg'});S.pendingFill={heroes:M.cfg.heroes,skins:M.cfg.skins};S.edit=null;S.aTab='acc';go(isA()?'admin':'sell')},'image/jpeg',.92);
+  let cv=M.out;
+  if(!M.opt.bg){cv=document.createElement('canvas');cv.width=M.out.width;cv.height=M.out.height;const x=cv.getContext('2d');x.fillStyle='#0e1424';x.fillRect(0,0,cv.width,cv.height);x.drawImage(M.out,0,0)}
+  cv.toBlob(b=>{if(!b)return toast('Không tạo được ảnh','var(--rd)');S.pendingImg=new File([b],'acc-ghep.jpg',{type:'image/jpeg'});S.pendingFill={heroes:M.cfg.heroes,skins:M.cfg.skins};S.edit=null;S.aTab='acc';go(isA()?'admin':'sell')},'image/jpeg',.92);
 }
 function applyPending(){
   if(!S.pendingImg||!$('#a_f'))return;
@@ -1084,15 +1127,16 @@ document.addEventListener('click',e=>{
   else if(a==='cur')M.cur=mc(M.cur+Number(v),0,M.items.length-1);
   else if(a==='full'){if(M.mode==='sync')M.sync={x:0,y:0,w:1,h:1};else M.items[M.cur].crop={x:0,y:0,w:1,h:1}}
   else if(a==='adv')M.adv=!M.adv;
+  else if(a==='optt')M.optOpen=!M.optOpen;
   else if(a==='tpl')M.cfg.tpl=Number(v);
   else if(a==='rmx'){if(v==='kills')M.ex.kills=[];else delete M.ex[v]}
-  else if(a==='sample'){return mgDraw({cfg:{...M.cfg},ex:{},items:[],mode:'sync'},true).then(cv=>{openModal('<h2 style="margin:0 0 12px">Ảnh mẫu (Mẫu '+M.cfg.tpl+')</h2><div id="smp"></div><p class="mgtip" style="margin-top:10px">Đây là bố cục minh họa, ảnh thật sẽ dùng ảnh bạn tải lên.</p>');cv.style.cssText='width:100%;height:auto;border-radius:12px;display:block';$('#smp').appendChild(cv)}).catch(x=>toast(x.message,'var(--rd)'))}
-  else if(a==='dl'){if(!M.out)return;M.out.toBlob(bl=>{const l=document.createElement('a');l.href=URL.createObjectURL(bl);l.download='acc-ghep-'+(M.cfg.maAcc||Date.now())+'.jpg';l.click();setTimeout(()=>URL.revokeObjectURL(l.href),4000)},'image/jpeg',.92);return}
+  else if(a==='sample'){return mgDraw({cfg:{...M.cfg},opt:{...M.opt},ex:{},items:[],mode:'sync'},true).then(cv=>{openModal('<h2 style="margin:0 0 12px">Ảnh mẫu (Mẫu '+M.cfg.tpl+')</h2><div id="smp"></div><p class="mgtip" style="margin-top:10px">Đây là bố cục minh họa, ảnh thật sẽ dùng ảnh bạn tải lên.</p>');cv.style.cssText='width:100%;height:auto;border-radius:12px;display:block';$('#smp').appendChild(cv)}).catch(x=>toast(x.message,'var(--rd)'))}
+  else if(a==='dl'){if(!M.out)return;const png=!M.opt.bg;M.out.toBlob(bl=>{const l=document.createElement('a');l.href=URL.createObjectURL(bl);l.download='acc-ghep-'+(M.cfg.maAcc||Date.now())+(png?'.png':'.jpg');l.click();setTimeout(()=>URL.revokeObjectURL(l.href),4000)},png?'image/png':'image/jpeg',.92);return}
   else if(a==='use')return mgUse();
   else if(a==='restart'){if(!confirm('Làm lại từ đầu? Các ảnh đã tải sẽ bị xóa.'))return;S.m=newMerge()}
   renderMerge();
 });
-document.addEventListener('change',e=>{const t=e.target;if(t.id==='mFiles'){mgAdd(t.files);t.value=''}else if(t.dataset&&t.dataset.x){mgEx(t.dataset.x,t.files);t.value=''}});
+document.addEventListener('change',e=>{const t=e.target;if(t.id==='mFiles'){mgAdd(t.files);t.value=''}else if(t.dataset&&t.dataset.x){mgEx(t.dataset.x,t.files);t.value=''}else if(t.dataset&&t.dataset.o&&S.m){S.m.opt[t.dataset.o]=t.checked;if(t.dataset.o==='title')renderMerge()}});
 document.addEventListener('input',e=>{const k=e.target.dataset&&e.target.dataset.k;if(k&&S.m)S.m.cfg[k]=e.target.value});
 
 /* kéo / thay đổi vùng cắt */
