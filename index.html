@@ -756,7 +756,7 @@ $('#fPw').onsubmit=async e=>{e.preventDefault();const o=$('#op').value,a=$('#np'
 
 /* ---------- quản trị ---------- */
 function resize(file,max,type){return new Promise((res,rej)=>{const im=new Image(),u=URL.createObjectURL(file);im.onload=()=>{const r=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*r);c.height=Math.round(im.height*r);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(b=>b?res(b):rej(new Error('Ảnh không hợp lệ')),type==='png'?'image/png':'image/jpeg',.82)};im.onerror=()=>rej(new Error('Ảnh không hợp lệ'));im.src=u})}
-async function upload(path,blob){const r=await sb.storage.from('public-assets').upload(path,blob,{contentType:blob.type,upsert:false});if(r.error)throw r.error;return sb.storage.from('public-assets').getPublicUrl(path).data.publicUrl}
+async function upload(path,blob){const r=await sb.storage.from('public-assets').upload(path,blob,{contentType:blob.type,upsert:false});if(r.error){const m=r.error.message||'';throw /row-level|not authorized|unauthorized/i.test(m)?new Error('Chưa cấp quyền tải ảnh cho người dùng. Hãy chạy file supabase-fix-upload.sql trong Supabase.'):r.error}return sb.storage.from('public-assets').getPublicUrl(path).data.publicUrl}
 const numOf=s=>Number(($(s).value||'').replace(/\D/g,''));
 function accForm(){
   const a=S.edit?(S.accs.find(x=>x.id===S.edit)||{}):{},m=n=>n?Number(n).toLocaleString('vi-VN'):'',v=k=>esc(a[k]);
