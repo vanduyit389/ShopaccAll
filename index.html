@@ -268,6 +268,34 @@ textarea.inp{resize:vertical;min-height:80px;font:inherit}
 .tabs{max-width:100%}
 .modal .sm-modal .cred{display:block}
 img{max-width:100%}
+/* ghép ảnh */
+.steps{display:flex;gap:8px;margin-bottom:16px;overflow-x:auto}
+.steps span{flex:1;min-width:84px;text-align:center;padding:9px 6px;border-radius:10px;background:var(--bg2);color:var(--mu);font-size:13px;font-weight:700;border:1px solid var(--bd);white-space:nowrap}
+.steps span.on{background:linear-gradient(135deg,var(--gd2),var(--gd));color:#1a1200;border-color:transparent}
+.box.mg{max-width:760px;margin:0 auto}
+.mgdrop{display:flex;flex-direction:column;align-items:center;gap:6px;padding:26px 14px;border:2px dashed var(--bd);border-radius:14px;cursor:pointer;text-align:center;color:var(--tx);background:var(--bg2);margin-bottom:14px}
+.mgdrop svg{width:30px;height:30px;color:var(--gd)}.mgdrop small{color:var(--mu)}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px}
+.thumb{position:relative;border-radius:10px;overflow:hidden;border:1px solid var(--bd);background:var(--bg2)}
+.thumb img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block}
+.thumb .no{position:absolute;left:6px;top:6px;background:#000a;color:#fff;border-radius:6px;font-size:11px;padding:1px 7px;font-weight:700}
+.thumb .rm{position:absolute;right:4px;top:4px;width:26px;height:26px;padding:0;border-radius:50%;background:var(--rd);display:grid;place-items:center}.thumb .rm svg{width:14px;height:14px}
+.thumb .mv{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-between;padding:4px}
+.thumb .mv button{width:28px;height:26px;padding:0;border-radius:8px;background:#000a;color:#fff;border:0;font-size:16px}
+.mgfoot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:16px;flex-wrap:wrap}
+.mgmode{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}.mgmode .btn{flex:1;min-width:120px}
+.mgtip{color:var(--mu);font-size:13px;margin:6px 0 10px}
+.mgpre{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.cropbox{position:relative;max-width:460px;margin:0 auto 12px;user-select:none;-webkit-user-select:none;overflow:hidden;border-radius:10px;background:#000}
+.cropbox img{width:100%;display:block;pointer-events:none}
+.crop{position:absolute;border:2px dashed var(--gd);box-shadow:0 0 0 9999px rgba(0,0,0,.55);touch-action:none;cursor:move}
+.crop .h{position:absolute;width:30px;height:30px;border:3px solid var(--gd);background:rgba(0,0,0,.3);touch-action:none}
+.crop .tl{left:-4px;top:-4px;border-right:0;border-bottom:0}.crop .tr{right:-4px;top:-4px;border-left:0;border-bottom:0}
+.crop .bl{left:-4px;bottom:-4px;border-right:0;border-top:0}.crop .br{right:-4px;bottom:-4px;border-left:0;border-top:0}
+.mgnav{display:flex;justify-content:center;align-items:center;gap:16px;margin:8px 0 12px}
+.mgh{margin:18px 0 8px;font-size:13px;color:var(--mu);letter-spacing:.5px;text-transform:uppercase}
+.mgex{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px}.mgex img{height:56px;border-radius:8px;border:1px solid var(--bd)}
+.mgacts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.mgacts .btn{flex:1;min-width:140px}
 </style>
 </head>
 <body>
@@ -280,6 +308,7 @@ img{max-width:100%}
       <button data-go="wheel"><i data-ic="gift"></i>Vòng quay</button>
       <button data-go="topup"><i data-ic="wallet"></i>Nạp tiền</button>
       <button data-go="history"><i data-ic="clock"></i>Lịch sử</button>
+      <button data-go="merge"><i data-ic="star"></i>Ghép ảnh</button>
       <button data-go="sell" id="navSell" style="display:none"><i data-ic="plus"></i>Đăng bán</button>
       <button data-go="admin" id="navAdmin" style="display:none"><i data-ic="shield"></i>Quản trị</button>
     </nav>
@@ -289,6 +318,7 @@ img{max-width:100%}
     <button data-go="profile"><i data-ic="user"></i>Tài khoản của tôi</button>
     <button data-go="history"><i data-ic="clock"></i>Lịch sử giao dịch</button>
     <button data-go="topup"><i data-ic="wallet"></i>Nạp tiền</button>
+    <button data-go="merge"><i data-ic="star"></i>Ghép ảnh acc</button>
     <button data-go="sell" id="menuSell" style="display:none"><i data-ic="plus"></i>Đăng bán acc</button>
     <button data-go="admin" id="menuAdmin" style="display:none"><i data-ic="shield"></i>Quản trị</button>
     <div class="sep"></div>
@@ -466,6 +496,13 @@ img{max-width:100%}
     </div>
   </section>
 
+  <!-- MERGE -->
+  <section class="view" id="v-merge">
+    <div class="page-h"><h1>Ghép ảnh acc</h1><p>Tải ảnh chụp acc, cắt và ghép thành một ảnh đẹp để đăng bán</p></div>
+    <div class="steps" id="mSteps"></div>
+    <div id="mBody"></div>
+  </section>
+
   <!-- SELL -->
   <section class="view" id="v-sell">
     <div class="page-h"><h1>Đăng bán acc</h1><p>Acc của bạn sẽ hiện trên web sau khi admin kiểm tra và duyệt</p></div>
@@ -517,7 +554,7 @@ const SB_URL="https://dnjtfyviroswhyiipgwb.supabase.co",SB_KEY="sb_publishable_h
 const sb=window.supabase?window.supabase.createClient(SB_URL,SB_KEY):null;
 const RANKS=['Kim Cương','Tinh Anh','Cao Thủ','Chiến Tướng','Thách Đấu'],CATS=['VIP','Random','Trắng TT','Giá rẻ'],GAME='Liên Quân Mobile';
 const DEF_CATS=[{id:'d1',name:'VIP',description:'Full skin SSS, rank Thách Đấu',image_url:'acc1.jpg'},{id:'d2',name:'Random',description:'Thử vận may chỉ từ 20K',image_url:'acc2.jpg'},{id:'d3',name:'Trắng TT',description:'Đổi được SĐT, email',image_url:'acc3.jpg'},{id:'d4',name:'Giá rẻ',description:'Dưới 200K, nhiều tướng',image_url:'acc4.jpg'}],DEF_RANKS=RANKS.map((n,i)=>({id:'r'+i,name:n}));
-const S={cats:DEF_CATS,ranks:DEF_RANKS,catsOk:false,catEdit:null,me:null,members:null,accs:[],sec:{},buys:[],txns:[],cards:[],users:[],bank:{},cat:'',amt:50000,view:'home',hTab:'buy',aTab:'acc',edit:null,loaded:false};
+const S={m:null,pendingImg:null,pendingFill:null,dirty:false,cats:DEF_CATS,ranks:DEF_RANKS,catsOk:false,catEdit:null,me:null,members:null,accs:[],sec:{},buys:[],txns:[],cards:[],users:[],bank:{},cat:'',amt:50000,view:'home',hTab:'buy',aTab:'acc',edit:null,loaded:false};
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const chk=r=>{if(r.error)throw r.error;return r.data};
 const isA=()=>!!S.me&&S.me.role==='admin';
@@ -560,9 +597,9 @@ function renderAll(soft){
   renderHeader();renderCats();renderStats();renderGrid();renderBank();
   if(S.view==='history')renderHist();
   if(S.view==='profile'&&!(soft&&typing()))renderProfile();
-  if(S.view==='admin'&&!(soft&&typing()))renderAdmin();
-  if(S.view==='sell'&&!(soft&&typing()))renderSell();
-  if(['history','topup','profile','admin','sell'].includes(S.view)&&S.loaded&&!S.me)go('login');
+  if(S.view==='admin'&&!(soft&&(typing()||S.dirty)))renderAdmin();
+  if(S.view==='sell'&&!(soft&&(typing()||S.dirty)))renderSell();
+  if(['history','topup','profile','admin','sell','merge'].includes(S.view)&&S.loaded&&!S.me)go('login');
 }
 
 /* ---------- header / điều hướng ---------- */
@@ -576,12 +613,12 @@ function renderHeader(){
   $('#navSell').style.display=$('#menuSell').style.display=(S.me&&!isA())?'':'none';
 }
 function go(v){
-  if(['history','topup','profile','admin','sell'].includes(v)&&!S.me){toast('Vui lòng đăng nhập để tiếp tục');v='login'}
+  if(['history','topup','profile','admin','sell','merge'].includes(v)&&!S.me){toast('Vui lòng đăng nhập để tiếp tục');v='login'}
   if(v==='admin'&&!isA())v='home';
   if(v==='sell'&&isA())v='admin';
   S.view=v;$$('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v));
   $$('.nav [data-go],.bnav [data-go]').forEach(b=>b.classList.toggle('on',b.dataset.go===v));
-  if(v==='history')renderHist();if(v==='profile')renderProfile();if(v==='admin')renderAdmin();if(v==='sell')renderSell();if(v==='topup')renderBank();
+  if(v==='history')renderHist();if(v==='profile')renderProfile();if(v==='admin')renderAdmin();if(v==='sell')renderSell();if(v==='merge')renderMerge();if(v==='topup')renderBank();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 document.addEventListener('click',e=>{
@@ -641,7 +678,7 @@ const credBox=s=>`<div class="cred" style="display:block"><div style="display:bl
 function openAcc(id){
   const a=S.accs.find(x=>x.id===id);if(!a||!isLive(a)||!canOpen(a))return;
   const sold=a.status==='sold',pc=pct(a),sec=S.sec[a.id];
-  openModal(`<div class="md"><img src="${esc(a.image_url)}" alt="Ảnh tài khoản ${acode(a.id)}"><div class="in">
+  openModal(`<div class="md"><a href="${esc(a.image_url)}" target="_blank" rel="noopener" style="display:block"><img src="${esc(a.image_url)}" alt="Ảnh tài khoản ${acode(a.id)}"></a><div class="in">
     ${a.rank?`<span class="pill">${svg('star')}${esc(a.rank)}</span>`:''}<h2>#${acode(a.id)} - ${esc(a.title)}</h2>
     <div class="kv"><div><small>Số tướng</small><b>${esc(a.heroes||'-')}</b></div><div><small>Số skin</small><b>${esc(a.skins||'-')}</b></div><div><small>Skin SSS</small><b>${esc(a.sss||'-')}</b></div><div><small>Danh mục</small><b>${esc(a.cat||a.game)}</b></div></div>
     ${a.details?`<p class="det">${esc(a.details)}</p>`:''}
@@ -808,11 +845,11 @@ async function saveCat(btn){
   }catch(e){btn.disabled=false;btn.textContent=lbl;toast(viErr(e.message||String(e)),'var(--rd)')}
 }
 function renderAdmin(){
-  if(!isA())return;
+  if(!isA())return;S.dirty=false;
   const T=[['acc',S.edit?'Sửa acc':'Đăng acc'],['list','Quản lý acc'],['pend','Duyệt acc'],['nap','Cộng tiền'],['card','Duyệt thẻ'],['users','Người dùng'],['cats','Danh mục & Rank'],['qr','Cài QR']],pend=S.cards.filter(c=>c.status==='pending'),pendA=S.accs.filter(a=>a.approval==='pending'),t=S.aTab;
   $('#aTabs').innerHTML=T.map(([k,l])=>`<button class="${t===k?'on':''}" data-at="${k}">${l}${k==='card'&&pend.length?` (${pend.length})`:''}${k==='pend'&&pendA.length?` (${pendA.length})`:''}</button>`).join('');
   const B=$('#aBody');
-  if(t==='acc'){B.innerHTML=accForm();pvDisc()}
+  if(t==='acc'){B.innerHTML=accForm();pvDisc();applyPending()}
   if(t==='list')B.innerHTML=`<div class="tbl-w"><table class="tbl"><thead><tr><th>Mã</th><th>Tiêu đề</th><th>Người đăng</th><th>Giá</th><th>Duyệt</th><th>Trạng thái</th><th></th></tr></thead><tbody>${S.accs.length?S.accs.map(a=>`<tr><td><b>#${acode(a.id)}</b></td><td style="white-space:normal;min-width:180px">${esc(a.title)}</td><td>${esc(a.seller_name||'-')}</td><td style="color:var(--gd);font-weight:700">${vnd(a.price)}</td><td>${apBadge(a)}</td><td><span class="st-b ${a.status==='sold'?'st-er':'st-ok'}">${a.status==='sold'?'Đã bán':'Còn'}</span></td><td><button class="btn btn-ol sm" data-act="edit" data-id="${a.id}">${svg('edit')}Sửa</button> <button class="btn btn-ol sm" style="color:var(--rd)" data-act="del" data-id="${a.id}">${svg('trash')}Xóa</button></td></tr>`).join(''):'<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--mu)">Chưa có acc nào</td></tr>'}</tbody></table></div>`;
   if(t==='pend')B.innerHTML=pendA.length?pendA.map(reviewCard).join(''):'<div class="empty">Không có acc nào đang chờ duyệt.</div>';
   if(t==='cats')B.innerHTML=catsAdmin();
@@ -833,10 +870,11 @@ function reviewCard(a){
   <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-gd" data-act="apv" data-id="${a.id}">${svg('check')}Duyệt</button><button class="btn btn-ol" style="color:var(--rd)" data-act="rej" data-id="${a.id}">Từ chối</button><button class="btn btn-ol" style="color:var(--rd)" data-act="del" data-id="${a.id}">${svg('trash')}Xóa</button></div></div></div></div>`;
 }
 function renderSell(){
-  if(!S.me||isA())return;
+  if(!S.me||isA())return;S.dirty=false;
   const mine=S.accs.filter(a=>a.seller_id===S.me.id);
   $('#sBody').innerHTML=accForm()+'<h3 style="margin:24px 0 12px">Acc đã đăng của tôi</h3>'+(mine.length?`<div class="tbl-w"><table class="tbl"><thead><tr><th>Mã</th><th>Tiêu đề</th><th>Giá</th><th>Duyệt</th><th>Trạng thái</th><th></th></tr></thead><tbody>${mine.map(a=>`<tr><td><b>#${acode(a.id)}</b></td><td style="white-space:normal;min-width:160px">${esc(a.title)}</td><td style="color:var(--gd);font-weight:700">${vnd(a.price)}</td><td>${apBadge(a)}${a.approval==='rejected'&&a.reject_reason?`<div class="sd-t" style="white-space:normal;max-width:220px;font-size:12px">Lý do: ${esc(a.reject_reason)}</div>`:''}</td><td><span class="st-b ${a.status==='sold'?'st-er':'st-ok'}">${a.status==='sold'?'Đã bán':'Còn'}</span></td><td>${a.approval!=='approved'&&a.status!=='sold'?`<button class="btn btn-ol sm" data-act="edit" data-id="${a.id}">${svg('edit')}Sửa</button> <button class="btn btn-ol sm" style="color:var(--rd)" data-act="del" data-id="${a.id}">${svg('trash')}Xóa</button>`:''}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Bạn chưa đăng acc nào.</div>');
   pvDisc();
+  applyPending();
 }
 async function saveAcc(btn){
   const p=numOf('#a_p'),d=Math.min(90,Number(($('#a_d').value||'').replace(/\D/g,'')));
@@ -846,7 +884,7 @@ async function saveAcc(btn){
   const lbl=btn.textContent;btn.disabled=true;btn.textContent='Đang lưu…';
   try{
     row.image_url=id?(S.accs.find(x=>x.id===id)||{}).image_url:'';
-    if(file)row.image_url=await upload('acc/'+rid()+'.jpg',await resize(file,900,'jpg'));
+    if(file)row.image_url=await upload('acc/'+rid()+'.jpg',await resize(file,1600,'jpg'));
     let aid=id;
     if(id)chk(await sb.from('accounts').update(row).eq('id',id));else aid=chk(await sb.from('accounts').insert(row).select('id').single()).id;
     chk(await sb.from('account_secrets').upsert({account_id:aid,secret:secret}));
@@ -902,8 +940,184 @@ document.addEventListener('input',e=>{
   if(t.id==='a_p'||t.id==='a_d')pvDisc();
 });
 
+/* ---------- ghép ảnh acc ---------- */
+const MF="'Be Vietnam Pro','Segoe UI',Roboto,Arial,sans-serif",MGOLD='rgba(245,185,66,.95)';
+const mc=(v,a,b)=>Math.min(b,Math.max(a,v));
+const newMerge=()=>({step:1,items:[],mode:'sync',sync:{x:0,y:0,w:1,h:1},cur:0,adv:false,cfg:{tpl:1,perRow:8,rowGap:36,heroes:'',skins:'',giayS:'',giayTS:'',theDoiTen:'',maAcc:''},ex:{kills:[]},out:null});
+function mgLoad(file){return new Promise((res,rej)=>{const url=URL.createObjectURL(file),im=new Image();
+  im.onload=()=>{const r=Math.min(1,1800/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(im.width*r));c.height=Math.max(1,Math.round(im.height*r));c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(url);res(c)};
+  im.onerror=()=>{URL.revokeObjectURL(url);rej(new Error('Ảnh không hợp lệ'))};im.src=url})}
+const mgUrl=(cv,max)=>{const r=Math.min(1,max/Math.max(cv.width,cv.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(cv.width*r));c.height=Math.max(1,Math.round(cv.height*r));c.getContext('2d').drawImage(cv,0,0,c.width,c.height);return c.toDataURL('image/jpeg',.78)};
+function mgRR(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
+function mgCover(c,s,x,y,w,h){const sa=s.width/s.height,da=w/h;let sw=s.width,sh=s.height,sx=0,sy=0;if(sa>da){sw=sh*da;sx=(s.width-sw)/2}else{sh=sw/da;sy=(s.height-sh)/2}c.drawImage(s,sx,sy,sw,sh,x,y,w,h)}
+function mgContain(c,s,x,y,w,h){const k=Math.min(w/s.width,h/s.height),dw=s.width*k,dh=s.height*k;c.drawImage(s,x+(w-dw)/2,y+(h-dh)/2,dw,dh)}
+function mgCrop(M,it){const r=M.mode==='sync'?M.sync:it.crop,sw=Math.max(8,r.w*it.cv.width),sh=Math.max(8,r.h*it.cv.height),c=document.createElement('canvas');c.width=Math.round(sw);c.height=Math.round(sh);c.getContext('2d').drawImage(it.cv,r.x*it.cv.width,r.y*it.cv.height,sw,sh,0,0,c.width,c.height);return c}
+function mgPh(w,h,hue,label){const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d'),g=x.createLinearGradient(0,0,w,h);g.addColorStop(0,`hsl(${hue},60%,45%)`);g.addColorStop(1,`hsl(${(hue+50)%360},55%,22%)`);x.fillStyle=g;x.fillRect(0,0,w,h);x.fillStyle='rgba(255,255,255,.85)';x.textAlign='center';x.font='600 '+Math.round(w/9)+'px '+MF;x.fillText(label,w/2,h/2);return c}
+
+/* vẽ ảnh ghép */
+async function mgDraw(M,sample){
+  if(document.fonts&&document.fonts.ready)await document.fonts.ready;
+  const cf=sample?{...M.cfg,heroes:M.cfg.heroes||'112',skins:M.cfg.skins||'354'}:M.cfg,W=1600,P=28,GX=8,GAP=16,tpl=Number(cf.tpl)||1,inner=W-2*P;
+  const cards=sample?Array.from({length:11},(_,i)=>mgPh(300,440,(i*37)%360,'Tướng '+(i+1))):M.items.map(it=>mgCrop(M,it));
+  const ex=sample?{kills:[mgPh(520,110,200,'Thông báo hạ'),mgPh(520,110,330,'Thông báo hạ'),mgPh(520,110,20,'Thông báo hạ')],avatar:mgPh(200,200,260,'Avatar')}:M.ex;
+  const n=mc(Math.round(Number(cf.perRow))||8,1,12),gy=mc(Number(cf.rowGap)||0,0,120);
+  const asp=cards.length?mc(cards[0].width/cards[0].height,.4,2.5):.7,cw=(inner-(n-1)*GX)/n,ch=cw/asp,rows=Math.ceil(cards.length/n),gridH=rows?rows*ch+(rows-1)*gy:0;
+  const kills=ex.kills||[];let kH=0;
+  if(kills.length){const kw=(inner-24-(kills.length-1)*16)/kills.length;kH=Math.min(150,Math.max(...kills.map(k=>kw*k.height/k.width)))+24}
+  const has=v=>v!==''&&v!=null,stats=[['Tướng',cf.heroes],['Trang phục',cf.skins]].filter(s=>has(s[1])),small=[['Giấy S',cf.giayS],['Giấy Tuyệt Sắc',cf.giayTS],['Thẻ đổi tên',cf.theDoiTen],['Mã ACC',cf.maAcc]].filter(s=>has(s[1]));
+  const hasInfo=!!(stats.length||small.length||ex.avatar||ex.win||ex.power),iH=hasInfo?220:0;
+  const pH=tpl===1&&ex.profile?Math.min(520,inner*ex.profile.height/ex.profile.width):0;
+  const parts=[kH,iH,pH,gridH].filter(h=>h>0),contentH=parts.reduce((a,b)=>a+b,0)+Math.max(0,parts.length-1)*GAP;
+  if(!cards.length&&!parts.length)throw new Error('Chưa có ảnh để ghép');
+  let H=contentH+2*P,bg=null;
+  if(tpl===2&&ex.profile){bg=ex.profile;H=Math.max(H,Math.round(W*bg.height/bg.width))}
+  if(H>8000)throw new Error('Ảnh ghép quá dài. Hãy tăng "Số ảnh trên 1 hàng" hoặc bớt ảnh.');
+  const cv=document.createElement('canvas');cv.width=W;cv.height=Math.round(H);const c=cv.getContext('2d');
+  if(bg)mgCover(c,bg,0,0,W,H);else{const g=c.createLinearGradient(0,0,W,H);g.addColorStop(0,'#26378a');g.addColorStop(1,'#131a4a');c.fillStyle=g;c.fillRect(0,0,W,H)}
+  let y=bg?H-P-contentH:P;
+  if(bg){c.fillStyle='rgba(8,12,40,.62)';mgRR(c,P/2,y-P/2,W-P,contentH+P,18);c.fill()}
+  if(kH){c.strokeStyle='#fff';c.lineWidth=4;mgRR(c,P,y,inner,kH,6);c.stroke();const kw=(inner-24-(kills.length-1)*16)/kills.length;kills.forEach((k,i)=>mgContain(c,k,P+12+i*(kw+16),y+12,kw,kH-24));y+=kH+GAP}
+  if(iH){
+    let x=P;
+    if(ex.avatar){c.save();mgRR(c,x,y,iH,iH,12);c.clip();mgCover(c,ex.avatar,x,y,iH,iH);c.restore();c.strokeStyle=MGOLD;c.lineWidth=3;mgRR(c,x,y,iH,iH,12);c.stroke();x+=iH+16}
+    if(stats.length||small.length){
+      const tw=stats.length?150:0,sw=small.length?340:0,pw=tw+sw+(tw&&sw?12:0)+24;
+      c.fillStyle='rgba(255,255,255,.08)';mgRR(c,x,y,pw,iH,12);c.fill();c.strokeStyle=MGOLD;c.lineWidth=3;c.stroke();
+      let tx=x+12;
+      if(stats.length){const th=(iH-24-(stats.length-1)*10)/stats.length;c.textAlign='center';stats.forEach((s,i)=>{const ty=y+12+i*(th+10);c.fillStyle='rgba(70,90,200,.85)';mgRR(c,tx,ty,tw,th,8);c.fill();c.fillStyle='#fff';c.font='600 24px '+MF;c.fillText(s[0],tx+tw/2,ty+th*.36);c.font='800 '+Math.round(Math.min(54,th*.48))+'px '+MF;c.fillText(String(s[1]),tx+tw/2,ty+th*.84,tw-12)});tx+=tw+12}
+      if(small.length){c.textAlign='left';const lh=(iH-24)/small.length;small.forEach((s,i)=>{const ty=y+12+lh*(i+.68);c.font='600 26px '+MF;c.fillStyle='#cfd8ff';const lbl=s[0]+': ',lw=c.measureText(lbl).width;c.fillText(lbl,tx+4,ty);c.font='800 30px '+MF;c.fillStyle='#ffd36b';c.fillText(String(s[1]),tx+4+lw,ty,Math.max(40,sw-8-lw))})}
+      c.textAlign='left';x+=pw+16;
+    }
+    const imgs=[ex.win,ex.power].filter(Boolean),rem=W-P-x;
+    if(imgs.length&&rem>80){const sl=(rem-(imgs.length-1)*12)/imgs.length;imgs.forEach((m,i)=>{const ix=x+i*(sl+12);c.save();mgRR(c,ix,y,sl,iH,10);c.clip();c.fillStyle='rgba(0,0,0,.25)';c.fillRect(ix,y,sl,iH);mgContain(c,m,ix,y,sl,iH);c.restore()})}
+    y+=iH+GAP;
+  }
+  if(pH){c.save();mgRR(c,P,y,inner,pH,12);c.clip();mgContain(c,ex.profile,P,y,inner,pH);c.restore();y+=pH+GAP}
+  cards.forEach((k,i)=>{const rw=Math.floor(i/n),cnt=Math.min(n,cards.length-rw*n),x=P+(n-cnt)*(cw+GX)/2+(i%n)*(cw+GX),yy=y+rw*(ch+gy);c.save();mgRR(c,x,yy,cw,ch,8);c.clip();mgCover(c,k,x,yy,cw,ch);c.restore();c.strokeStyle=MGOLD;c.lineWidth=3;mgRR(c,x,yy,cw,ch,8);c.stroke()});
+  return cv;
+}
+
+/* các bước */
+function mgRect(){const M=S.m;return M.mode==='sync'?M.sync:M.items[M.cur].crop}
+const mgStyle=r=>`left:${r.x*100}%;top:${r.y*100}%;width:${r.w*100}%;height:${r.h*100}%`;
+function mgPreset(k){
+  const M=S.m,it=M.items[M.cur]||M.items[0],A=it?it.cv.width/it.cv.height:1;
+  if(k==='full')return{x:0,y:0,w:1,h:1};if(k==='trim')return{x:.08,y:.08,w:.84,h:.84};
+  const q={p34:3/4,p23:2/3,l169:16/9}[k]/A;let w,h;if(q<=1){h=1;w=q}else{w=1;h=1/q}
+  return{x:(1-w)/2,y:(1-h)/2,w:w,h:h};
+}
+function mgStep1(){
+  const M=S.m;
+  return `<div class="box mg"><label class="mgdrop" for="mFiles">${svg('plus')}<b>Chọn ảnh cần ghép</b><small>Chọn tối đa 9 ảnh mỗi lần · tổng tối đa 18 ảnh</small></label><input id="mFiles" type="file" accept="image/*" multiple hidden>
+  ${M.items.length?`<div class="thumbs">${M.items.map((it,i)=>`<div class="thumb"><img src="${it.th}" alt=""><span class="no">${i+1}</span><button class="rm" data-m="del" data-i="${i}" aria-label="Xóa ảnh">${svg('x')}</button><div class="mv"><button data-m="mv" data-i="${i}" data-v="-1">‹</button><button data-m="mv" data-i="${i}" data-v="1">›</button></div></div>`).join('')}</div>`:''}
+  <div class="mgfoot"><span style="color:var(--mu)">${M.items.length} ảnh</span><button class="btn btn-gd" data-m="next" ${M.items.length?'':'disabled'}>Tiếp tục: cắt ảnh ›</button></div></div>`;
+}
+function mgStep2(){
+  const M=S.m,it=M.items[M.cur],sync=M.mode==='sync',pre=[['full','Toàn bộ ảnh'],['trim','Cắt viền 8%'],['p34','Dọc 3:4'],['p23','Dọc 2:3'],['l169','Ngang 16:9']];
+  return `<div class="box mg"><div class="note" style="margin-bottom:12px"><i data-ic="info"></i><span>Kéo khung vàng để di chuyển, kéo 4 góc để đổi kích thước vùng cắt.</span></div>
+  <div class="mgmode"><button class="btn ${sync?'btn-ol':'btn-gd'}" data-m="mode" data-v="each">✂️ Tự cắt từng ảnh</button><button class="btn ${sync?'btn-gd':'btn-ol'}" data-m="mode" data-v="sync">⚡ Web tự cắt đồng bộ</button></div>
+  ${sync?`<p class="mgtip">Một vùng cắt được áp dụng cho tất cả ảnh. Chọn nhanh hoặc tự kéo khung:</p><div class="mgpre">${pre.map(p=>`<button class="chip" data-m="pre" data-v="${p[0]}">${p[1]}</button>`).join('')}</div>`:'<p class="mgtip">Mỗi ảnh có vùng cắt riêng, bấm ‹ › để chuyển ảnh.</p>'}
+  <div class="cropbox" id="cropbox"><img src="${it.view}" alt="" draggable="false"><div class="crop" id="crop" style="${mgStyle(mgRect())}"><i class="h tl" data-h="tl"></i><i class="h tr" data-h="tr"></i><i class="h bl" data-h="bl"></i><i class="h br" data-h="br"></i></div></div>
+  <div class="mgnav"><button class="btn btn-ol sm" data-m="cur" data-v="-1">‹</button><b>${M.cur+1} / ${M.items.length}</b><button class="btn btn-ol sm" data-m="cur" data-v="1">›</button></div>
+  <button class="btn btn-ol btn-block" data-m="full">Chọn vùng cắt là toàn bộ ảnh</button>
+  <div class="mgfoot"><button class="btn btn-ol" data-m="back">‹ Quay lại</button><button class="btn btn-gd" data-m="next">Tiếp tục: cấu hình ›</button></div></div>`;
+}
+function mgStep3(){
+  const M=S.m,c=M.cfg,ex=M.ex;
+  const inp=(k,l,ph,t)=>`<div class="fg"><label class="lb">${l}</label><input class="inp" data-k="${k}" ${t?`type="${t}" inputmode="numeric"`:''} value="${esc(c[k])}" placeholder="${ph||''}"></div>`;
+  const up=(k,l,multi)=>{const has=multi?ex[k].length:ex[k];return `<div class="fg"><label class="lb">${l}</label>${has?`<div class="mgex">${(multi?ex[k]:[ex[k]]).map(x=>`<img src="${mgUrl(x,120)}" alt="">`).join('')}<button class="btn btn-ol sm" data-m="rmx" data-v="${k}">Xóa</button></div>`:''}<input class="inp" type="file" accept="image/*" data-x="${k}" ${multi?'multiple':''}></div>`};
+  return `<div class="box mg"><h3>${svg('star')}Cấu hình ghép</h3>
+  <div class="mgmode"><button class="btn ${c.tpl==1?'btn-gd':'btn-ol'}" data-m="tpl" data-v="1">Mẫu ảnh 1</button><button class="btn ${c.tpl==2?'btn-gd':'btn-ol'}" data-m="tpl" data-v="2">Mẫu ảnh 2</button><button class="btn btn-ol" data-m="sample">🖼 Xem mẫu</button></div>
+  <p class="mgtip">${c.tpl==1?'Mẫu 1: nền xanh, thông tin ở trên, các ảnh tướng xếp lưới bên dưới.':'Mẫu 2: dùng ảnh <b>Profile</b> (tải ở phần nâng cao) làm nền, các ảnh tướng xếp phía dưới.'}</p>
+  <div class="fgrid">${inp('perRow','Số ảnh trên 1 hàng','8','number')}${inp('rowGap','Độ rộng giữa 2 hàng (px)','36','number')}${inp('heroes','Tướng sở hữu','VD: 112')}${inp('skins','Skin sở hữu','VD: 354')}</div>
+  <button class="btn btn-ol btn-block" data-m="adv">${M.adv?'Thu gọn ▲':'+ Thêm nút bấm, top tướng, bậc EVO ▼'}</button>
+  ${M.adv?`<h4 class="mgh">Các tính năng nâng cao (không bắt buộc)</h4>${up('win','Tỷ lệ thắng')}${up('power','Ảnh lực chiến và top tướng')}<div class="fgrid">${inp('giayTS','Số Giấy Tuyệt Sắc','0')}${inp('theDoiTen','Thẻ đổi tên','0')}${inp('giayS','Số Giấy S','0')}${inp('maAcc','Mã số ACC','Nhập mã số ACC...')}</div>${up('avatar','Avatar')}${up('profile','Profile')}${up('kills','Thông báo hạ gục (tối đa 3 ảnh)',true)}`:''}
+  <div class="mgfoot"><button class="btn btn-ol" data-m="back">‹ Quay lại</button><button class="btn btn-gd" data-m="next">Ghép ảnh ›</button></div></div>`;
+}
+function mgStep4(){
+  return `<div class="box mg"><div id="mOut"><p class="empty">Đang ghép ảnh…</p></div>
+  <div class="mgacts"><button class="btn btn-gd" data-m="dl">⬇ Tải ảnh về</button><button class="btn btn-gd" data-m="use">${svg('plus')}Dùng làm ảnh acc</button><button class="btn btn-ol" data-m="back">‹ Chỉnh lại</button><button class="btn btn-ol" data-m="restart">Làm lại từ đầu</button></div></div>`;
+}
+function renderMerge(){
+  const M=S.m;if(!M)return;
+  $('#mSteps').innerHTML=['Tải ảnh','Cắt ảnh','Cấu hình','Kết quả'].map((t,i)=>`<span class="${M.step===i+1?'on':''}">${i+1}. ${t}</span>`).join('');
+  $('#mBody').innerHTML=[mgStep1,mgStep2,mgStep3,mgStep4][M.step-1]();
+  paintIcons();
+  if(M.step===4)mgBuild();
+}
+async function mgBuild(){
+  const M=S.m;
+  try{const cv=await mgDraw(M,false);M.out=cv;cv.style.cssText='width:100%;height:auto;border-radius:12px;display:block';const o=$('#mOut');if(o){o.innerHTML='';o.appendChild(cv)}}
+  catch(e){M.out=null;const o=$('#mOut');if(o)o.innerHTML='<p class="empty">'+esc(e.message||String(e))+'</p>'}
+}
+async function mgAdd(fl){
+  const M=S.m;let a=[...fl].filter(f=>f.type.startsWith('image/'));
+  if(a.length>9){toast('Chỉ lấy 9 ảnh mỗi lần chọn');a=a.slice(0,9)}
+  const room=18-M.items.length;if(a.length>room){toast('Tối đa 18 ảnh');a=a.slice(0,Math.max(0,room))}
+  if(!a.length)return;toast('Đang xử lý ảnh…');
+  for(const f of a){try{const cv=await mgLoad(f);M.items.push({cv:cv,view:mgUrl(cv,900),th:mgUrl(cv,200),crop:{x:0,y:0,w:1,h:1}})}catch(e){toast(e.message,'var(--rd)')}}
+  renderMerge();
+}
+async function mgEx(k,fl){
+  const M=S.m;
+  try{if(k==='kills')M.ex.kills=await Promise.all([...fl].slice(0,3).map(mgLoad));else if(fl[0])M.ex[k]=await mgLoad(fl[0]);renderMerge()}catch(e){toast(e.message,'var(--rd)')}
+}
+function mgUse(){
+  const M=S.m;if(!M.out)return;
+  M.out.toBlob(b=>{if(!b)return toast('Không tạo được ảnh','var(--rd)');S.pendingImg=new File([b],'acc-ghep.jpg',{type:'image/jpeg'});S.pendingFill={heroes:M.cfg.heroes,skins:M.cfg.skins};S.edit=null;S.aTab='acc';go(isA()?'admin':'sell')},'image/jpeg',.92);
+}
+function applyPending(){
+  if(!S.pendingImg||!$('#a_f'))return;
+  try{const dt=new DataTransfer();dt.items.add(S.pendingImg);$('#a_f').files=dt.files}catch(e){toast('Trình duyệt không hỗ trợ, hãy tải ảnh về rồi chọn lại','var(--rd)');S.pendingImg=null;return}
+  const f=S.pendingFill||{};if(f.heroes&&!$('#a_h').value)$('#a_h').value=f.heroes;if(f.skins&&!$('#a_s').value)$('#a_s').value=f.skins;
+  S.pendingImg=null;S.dirty=true;toast('Đã chọn ảnh ghép làm ảnh acc, hãy nhập nốt thông tin rồi đăng','var(--ok)');
+}
+document.addEventListener('click',e=>{
+  const b=e.target.closest('#v-merge [data-m]');if(!b)return;
+  const M=S.m,a=b.dataset.m,v=b.dataset.v,i=Number(b.dataset.i);
+  if(a==='del'){M.items.splice(i,1);M.cur=mc(M.cur,0,Math.max(0,M.items.length-1))}
+  else if(a==='mv'){const j=i+Number(v);if(j>=0&&j<M.items.length){[M.items[i],M.items[j]]=[M.items[j],M.items[i]]}}
+  else if(a==='next'){if(M.step===1&&!M.items.length)return toast('Hãy chọn ít nhất 1 ảnh');M.step=Math.min(4,M.step+1);if(M.step===2)M.cur=mc(M.cur,0,M.items.length-1)}
+  else if(a==='back')M.step=Math.max(1,M.step-1);
+  else if(a==='mode'){M.mode=v;if(v==='sync')M.sync={...M.items[M.cur].crop}}
+  else if(a==='pre')M.sync=mgPreset(v);
+  else if(a==='cur')M.cur=mc(M.cur+Number(v),0,M.items.length-1);
+  else if(a==='full'){if(M.mode==='sync')M.sync={x:0,y:0,w:1,h:1};else M.items[M.cur].crop={x:0,y:0,w:1,h:1}}
+  else if(a==='adv')M.adv=!M.adv;
+  else if(a==='tpl')M.cfg.tpl=Number(v);
+  else if(a==='rmx'){if(v==='kills')M.ex.kills=[];else delete M.ex[v]}
+  else if(a==='sample'){return mgDraw({cfg:{...M.cfg},ex:{},items:[],mode:'sync'},true).then(cv=>{openModal('<h2 style="margin:0 0 12px">Ảnh mẫu (Mẫu '+M.cfg.tpl+')</h2><div id="smp"></div><p class="mgtip" style="margin-top:10px">Đây là bố cục minh họa, ảnh thật sẽ dùng ảnh bạn tải lên.</p>');cv.style.cssText='width:100%;height:auto;border-radius:12px;display:block';$('#smp').appendChild(cv)}).catch(x=>toast(x.message,'var(--rd)'))}
+  else if(a==='dl'){if(!M.out)return;M.out.toBlob(bl=>{const l=document.createElement('a');l.href=URL.createObjectURL(bl);l.download='acc-ghep-'+(M.cfg.maAcc||Date.now())+'.jpg';l.click();setTimeout(()=>URL.revokeObjectURL(l.href),4000)},'image/jpeg',.92);return}
+  else if(a==='use')return mgUse();
+  else if(a==='restart'){if(!confirm('Làm lại từ đầu? Các ảnh đã tải sẽ bị xóa.'))return;S.m=newMerge()}
+  renderMerge();
+});
+document.addEventListener('change',e=>{const t=e.target;if(t.id==='mFiles'){mgAdd(t.files);t.value=''}else if(t.dataset&&t.dataset.x){mgEx(t.dataset.x,t.files);t.value=''}});
+document.addEventListener('input',e=>{const k=e.target.dataset&&e.target.dataset.k;if(k&&S.m)S.m.cfg[k]=e.target.value});
+
+/* kéo / thay đổi vùng cắt */
+let mgDrag=null;
+document.addEventListener('pointerdown',e=>{
+  const cr=e.target.closest('#crop');if(!cr||!S.m||S.view!=='merge')return;
+  const h=e.target.closest('[data-h]'),bx=$('#cropbox').getBoundingClientRect();
+  mgDrag={m:h?h.dataset.h:'mv',x:e.clientX,y:e.clientY,r:{...mgRect()},w:bx.width,h:bx.height};e.preventDefault();
+});
+window.addEventListener('pointermove',e=>{
+  if(!mgDrag)return;
+  const dx=(e.clientX-mgDrag.x)/mgDrag.w,dy=(e.clientY-mgDrag.y)/mgDrag.h,mn=.04,m=mgDrag.m;let{x,y,w,h}=mgDrag.r,x2=x+w,y2=y+h;
+  if(m==='mv'){x=mc(x+dx,0,1-w);y=mc(y+dy,0,1-h)}
+  else{if(m.includes('l'))x=mc(x+dx,0,x2-mn);if(m.includes('r'))x2=mc(x2+dx,x+mn,1);if(m.includes('t'))y=mc(y+dy,0,y2-mn);if(m.includes('b'))y2=mc(y2+dy,y+mn,1);w=x2-x;h=y2-y}
+  const r={x:x,y:y,w:w,h:h},M=S.m;if(M.mode==='sync')M.sync=r;else M.items[M.cur].crop=r;
+  const el=$('#crop');if(el)el.style.cssText=mgStyle(r);
+});
+window.addEventListener('pointerup',()=>{mgDrag=null});
+window.addEventListener('pointercancel',()=>{mgDrag=null});
+
+document.addEventListener('input',e=>{if(e.target.closest&&e.target.closest('#aBody,#sBody'))S.dirty=true},true);
+document.addEventListener('change',e=>{if(e.target.closest&&e.target.closest('#aBody,#sBody'))S.dirty=true},true);
+
 /* ---------- khởi động ---------- */
-paintIcons();renderAmts();go('home');renderCats();renderStats();renderGrid();renderBank();
+S.m=newMerge();paintIcons();renderAmts();go('home');renderCats();renderStats();renderGrid();renderBank();
 if(sb){
   sb.auth.onAuthStateChange(ev=>{setTimeout(async()=>{await refresh();if(ev==='PASSWORD_RECOVERY')openRecover()},0)});
   let tm;const live=()=>{clearTimeout(tm);tm=setTimeout(()=>refresh(true),500)};
